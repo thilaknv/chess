@@ -132,7 +132,7 @@ body {
     background-color: #adb5bd;
 }
 
-@media handheld {
+@media(max-width: 400px) {
     #container {
         display: none;
     }
