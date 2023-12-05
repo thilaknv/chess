@@ -1,0 +1,133 @@
+:root {
+    --length: 80vh;
+    --board-black: #779952;
+    --board-white: #edeed1;
+    color: #f4f4e4;
+    font-family: sans-serif;
+}
+
+
+* {
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: rgb(64, 65, 65);
+}
+
+#container {
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#board {
+    display: flex;
+    height: var(--length);
+    width: var(--length);
+    flex-wrap: wrap;
+}
+
+.pool {
+    height: 10vh;
+    width: 10vh;
+}
+
+.pieces {
+    height: 10vh;
+    width: 10vh;
+    cursor: grab;
+}
+
+.pieces:active,
+.grabbing {
+    height: 10vh;
+    width: 10vh;
+    cursor: grabbing;
+}
+
+#player1,
+#player2 {
+    height: 8vh;
+    width: var(--length);
+    border: 1px solid rgb(102, 101, 101);
+}
+
+.hide {
+    display: none;
+}
+
+.hovering {
+    border: 3px solid black;
+}
+
+#container2 {
+    height: calc(var(--length) + 16vh);
+    width: var(--length);
+    border: 1px solid rgb(102, 101, 101);
+}
+
+#moves,
+#chatting {
+    height: 50%;
+    border: 1px solid rgb(102, 101, 101);
+    padding: 10px;
+}
+
+#moves h3 {
+    /* border-bottom: 1px solid rgb(102, 101, 101); */
+    padding: 10px;
+}
+
+#movesContainer {
+    height: calc(var(--length) / 2 + 8vh - 62px);
+    overflow: auto;
+    scrollbar-gutter: stable;
+}
+
+#movesContainer div:nth-of-type(2n - 1) {
+    background-color: rgb(70, 70, 70);
+}
+
+.newMove {
+    display: flex;
+    padding: 7px;
+    font-size: small;
+    font-weight: bold;
+    color: #cdcdc8;
+}
+
+.newMove p {
+    width: 100px;
+}
+
+.newMove p:first-child {
+    font-weight: normal;
+    font-size: small;
+    color: #9b9b90;
+    width: 50px;
+}
+
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 5px;
+    background-color: #495057;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #6c757d;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: #adb5bd;
+}
