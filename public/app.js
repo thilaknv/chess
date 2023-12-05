@@ -189,5 +189,5 @@ const hideButtons = document.querySelectorAll(".buttonToHide");
 for (let h of hideButtons) {
     h.addEventListener("click", (e) => {
         e.target.parentNode.style.display = "none";
-    })
+    });
 }
