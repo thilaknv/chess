@@ -131,3 +131,9 @@ body {
 ::-webkit-scrollbar-thumb:active {
     background-color: #adb5bd;
 }
+
+@media handheld {
+    #container {
+        display: none;
+    }
+}
