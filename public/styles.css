@@ -16,6 +16,21 @@ body {
     background-color: rgb(64, 65, 65);
 }
 
+#alert1,
+#alert2 {
+    width: 100%;
+    padding: 20px;
+    background-color: #6c757d;
+
+    position: fixed;
+
+    text-align: center;
+}
+
+#alert2 {
+    display: none;
+}
+
 #container {
     height: 100vh;
     display: flex;
@@ -133,7 +148,13 @@ body {
 }
 
 @media(max-width: 400px) {
-    #container {
+
+    #container,
+    #alert1 {
         display: none;
+    }
+
+    #alert2 {
+        display: block;
     }
 }

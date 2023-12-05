@@ -37,7 +37,7 @@ function isValid(imgId, fromPoolId, toPoolId) {
         if (fromWhite.length <= fromBlack.length)
             return false;
     }
-    
+
     return true;
 }
 
@@ -47,12 +47,12 @@ function dragStartEnd(img) {
         e.target.className = "grabbing";
         setTimeout(() => {
             e.target.className = "hide";
-        }, 0)    
-    });    
+        }, 0)
+    });
     img.addEventListener("dragend", (e) => {
         e.target.className = "pieces";
-    });    
-}    
+    });
+}
 
 
 
@@ -182,4 +182,12 @@ for (let i = 0; i < 8; i++) {
         addPieces(pool, i, j);
         dragDrop(pool);
     }
+}
+
+
+const hideButtons = document.querySelectorAll(".buttonToHide");
+for (let h of hideButtons) {
+    h.addEventListener("click", (e) => {
+        e.target.parentNode.style.display = "none";
+    })
 }
