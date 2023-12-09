@@ -78,6 +78,12 @@ function renderSquares(srcSquare, destSquare) {
         const childern = destSquareEl.childNodes;
         if (childern.length == 2)
             destSquareEl.removeChild(childern[1]);
+        if (piece.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
+            piece.src = piece.src.replace("pawn", "queen");
+            destSquare.piece.pieceName = "queen";
+            destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
+            console.log(destSquare);
+        }
         destSquareEl.appendChild(piece);
     }, 100);
 }

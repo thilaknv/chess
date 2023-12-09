@@ -97,9 +97,9 @@ function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
-        let check = false;
+        let check = true;
 
-        if ((check = true) && action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
+        if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
 
             check = false;
             action.destSquare = searchInGameState(clickSquareId);
@@ -109,9 +109,7 @@ function globalEvent() {
             action.destSquare.piece = movingPiece;
             action.srcSquare.piece = undefined;
 
-            if (action.prevMoveSquares.length)
-                remSelectedSqRender(action.prevMoveSquares.pop());
-            if (action.prevMoveSquares.length)
+            while (action.prevMoveSquares.length)
                 remSelectedSqRender(action.prevMoveSquares.pop());
 
             renderSquares(action.srcSquare, action.destSquare);
@@ -135,11 +133,19 @@ function globalEvent() {
 
         if (check && localName == 'img') {
             const square = searchInGameState(clickSquareId);
-            if (square.piece.pieceName == 'whitePawn') {
-                whitePawnClick(square);
-            }
-            if (square.piece.pieceName == 'blackPawn') {
-                blackPawnClick(square);
+            switch (square.piece.pieceName) {
+                case 'whitePawn': whitePawnClick(square); break;
+                case 'whiteRook': break;
+                case 'whiteKnight': break;
+                case 'whiteBishop': break;
+                case 'whiteQueen': break;
+                case 'whiteKing': break;
+                case 'blackPawn': blackPawnClick(square); break;
+                case 'blackRook': break;
+                case 'blackKnight': break;
+                case 'blackBishop': break;
+                case 'blackQueen': break;
+                case 'blackKing': break;
             }
             action.highLightSquares.forEach(highId => {
                 highLightSqRender(highId);
