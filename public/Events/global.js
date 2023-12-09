@@ -62,6 +62,47 @@ function whitePawnClick(square) {
     });
 }
 
+function blackPawnClick(square) {
+    selectedSqRender(square);
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = currentPosition[1];
+    const col = currentPosition[0];
+    let destPiece;
+
+    let destinId = `${col}${Number(rank) - 1}`;
+    action.srcSquare = square;
+    if (!searchInGameState(destinId).piece) {
+        action.highLightSquares.push(destinId);
+        destinId = `${col}${Number(currentPosition[1]) - 2}`;
+        if (rank == 7 && !searchInGameState(destinId).piece) {
+            action.highLightSquares.push(destinId);
+        }
+    }
+    if (col != 'a') {
+        destinId = `${alpha[col.charCodeAt(0) - 98]}${Number(rank) - 1}`;
+        if ((destPiece = searchInGameState(destinId).piece)) {
+            if (destPiece.pieceName[0] != square.piece.pieceName[0]) {
+                action.capturableSquares.push(destinId);
+            }
+        }
+    }
+    if (col != 'h') {
+        destinId = `${alpha[col.charCodeAt(0) - 96]}${Number(rank) - 1}`;
+        if ((destPiece = searchInGameState(destinId).piece)) {
+            if (destPiece.pieceName[0] != square.piece.pieceName[0]) {
+                action.capturableSquares.push(destinId);
+            }
+        }
+    }
+    action.highLightSquares.forEach(highId => {
+        highLightSqRender(highId);
+    });
+    action.capturableSquares.forEach(capId => {
+        capturableSqRender(capId);
+    });
+}
+
 function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
@@ -106,6 +147,9 @@ function globalEvent() {
             const square = searchInGameState(clickSquareId);
             if (square.piece.pieceName == 'whitePawn') {
                 whitePawnClick(square);
+            }
+            if (square.piece.pieceName == 'blackPawn') {
+                blackPawnClick(square);
             }
         }
     });
