@@ -93,6 +93,45 @@ function blackPawnClick(square) {
     }
 }
 
+function knightClick(square) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 96;
+
+    const set = [];
+    if (rank > 1) {
+        if (col > 2) set.push(`${alpha[col - 3]}${rank - 1}`);
+        if (col < 7) set.push(`${alpha[col + 1]}${rank - 1}`);
+        if (rank > 2) {
+            if (col > 1) set.push(`${alpha[col - 2]}${rank - 2}`);
+            if (col < 8) set.push(`${alpha[col]}${rank - 2}`);
+        }
+    }
+    if (rank < 8) {
+        if (col > 2) set.push(`${alpha[col - 3]}${rank + 1}`);
+        if (col < 7) set.push(`${alpha[col + 1]}${rank + 1}`);
+        if (rank < 7) {
+            if (col > 1) set.push(`${alpha[col - 2]}${rank + 2}`);
+            if (col < 8) set.push(`${alpha[col]}${rank + 2}`);
+        }
+    }
+    set.forEach(destId => {
+        const destSquare = searchInGameState(destId);
+        if (destSquare.piece) {
+            if (destSquare.piece.pieceName[0] != square.piece.pieceName[0]) {
+                action.capturableSquares.push(destId);
+            }
+        }
+        else {
+            action.highLightSquares.push(destId);
+        }
+    });
+    console.log(action);
+}
+
 function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
@@ -136,13 +175,12 @@ function globalEvent() {
             switch (square.piece.pieceName) {
                 case 'whitePawn': whitePawnClick(square); break;
                 case 'whiteRook': break;
-                case 'whiteKnight': break;
+                case 'whiteKnight' :case 'blackKnight': knightClick(square); break;
                 case 'whiteBishop': break;
                 case 'whiteQueen': break;
                 case 'whiteKing': break;
                 case 'blackPawn': blackPawnClick(square); break;
                 case 'blackRook': break;
-                case 'blackKnight': break;
                 case 'blackBishop': break;
                 case 'blackQueen': break;
                 case 'blackKing': break;
