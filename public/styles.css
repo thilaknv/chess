@@ -73,3 +73,20 @@ body {
     border-radius: 50%;
     background-color: #00000026;
 }
+
+
+@media(max-width : 80vh) {
+    :root {
+        --board-length: 100vw;
+    }
+}
+
+/* old */
+
+#player1,
+#player2 {
+    height: calc(var(--board-length) / 10);
+    width: var(--board-length);
+    border: 1px solid rgb(102, 101, 101);
+    flex-direction: column;
+}
