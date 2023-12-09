@@ -82,7 +82,6 @@ function renderSquares(srcSquare, destSquare) {
             piece.src = piece.src.replace("pawn", "queen");
             destSquare.piece.pieceName = "queen";
             destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
-            console.log(destSquare);
         }
         destSquareEl.appendChild(piece);
     }, 100);

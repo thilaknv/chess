@@ -6,6 +6,7 @@ import {
     remSelectedSqRender
 } from "../Render/main.js";
 import { alpha } from "../Data/data.js";
+import { bottom, bottomLeft, bottomRight, left, right, top, topLeft, topRight } from "./traverse.js";
 
 const action = {
     highLightSquares: [],
@@ -129,7 +130,50 @@ function knightClick(square) {
             action.highLightSquares.push(destId);
         }
     });
-    console.log(action);
+}
+
+function bishopClick(square) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 96;
+
+    topLeft(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+}
+function rookClick(square) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 96;
+
+    top(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
+    bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
+    left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+}
+function queenClick(square) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 96;
+
+    topLeft(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    top(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
+    bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
+    left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
+    right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
 
 function globalEvent() {
@@ -174,16 +218,12 @@ function globalEvent() {
             const square = searchInGameState(clickSquareId);
             switch (square.piece.pieceName) {
                 case 'whitePawn': whitePawnClick(square); break;
-                case 'whiteRook': break;
-                case 'whiteKnight' :case 'blackKnight': knightClick(square); break;
-                case 'whiteBishop': break;
-                case 'whiteQueen': break;
-                case 'whiteKing': break;
                 case 'blackPawn': blackPawnClick(square); break;
-                case 'blackRook': break;
-                case 'blackBishop': break;
-                case 'blackQueen': break;
-                case 'blackKing': break;
+                case 'whiteKnight': case 'blackKnight': knightClick(square); break;
+                case 'whiteBishop': case 'blackBishop': bishopClick(square); break;
+                case 'whiteRook': case 'blackRook': rookClick(square); break;
+                case 'whiteQueen': case 'blackQueen': queenClick(square); break;
+                case 'whiteKing': case 'blackKing': break;
             }
             action.highLightSquares.forEach(highId => {
                 highLightSqRender(highId);
