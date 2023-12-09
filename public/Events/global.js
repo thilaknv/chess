@@ -61,6 +61,7 @@ function whitePawnClick(square) {
         capturableSqRender(capId);
     });
 }
+
 function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
@@ -84,6 +85,7 @@ function globalEvent() {
 
             renderSquares(action.srcSquare, action.destSquare);
             selectedSqRender(action.destSquare);
+            selectedSqRender(action.srcSquare);
 
             action.prevMoveSquares.push(action.srcSquare);
             action.prevMoveSquares.push(action.destSquare);

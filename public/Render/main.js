@@ -82,8 +82,6 @@ function renderSquares(srcSquare, destSquare) {
     }, 100);
 }
 
-
-
 function selectedSqRender({ id, color }) {
     const selSquare = document.querySelector(`#${id}`);
     selSquare.classList.add(`selected${color}`);
