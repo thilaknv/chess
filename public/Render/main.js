@@ -84,12 +84,14 @@ function renderSquares(srcSquare, destSquare) {
 
 function selectedSqRender({ id, color }) {
     const selSquare = document.querySelector(`#${id}`);
-    selSquare.classList.add(`selected${color}`);
+    const classs = `selected${color}`;
+    selSquare.classList.contains(classs) || selSquare.classList.add(classs);
 }
 
 function remSelectedSqRender({ id, color }) {
     const selSquare = document.querySelector(`#${id}`);
-    selSquare.className = `${color}`;
+    const classs = `selected${color}`;
+    selSquare.classList.contains(classs) && selSquare.classList.remove(classs);
 }
 
 function highLightSqRender(sqrId) {
@@ -99,24 +101,23 @@ function highLightSqRender(sqrId) {
     highSpan.style.display = "block";
 }
 
-function capturableSqRender(sqrId) {
-    const captSquare = document.getElementById(sqrId);
-    if (!captSquare.classList.contains("capturable"))
-        captSquare.classList.add("capturable");
-}
-
-function RemCapturableSqRender(sqrId) {
-    const captSquare = document.getElementById(sqrId);
-    if (captSquare.classList.contains("capturable"))
-        captSquare.classList.remove("capturable");
-}
-
 function remHighLightSqRender(sqrId) {
     const highSpan = document.querySelector("#" + sqrId + " span");
     const highSquare = document.getElementById(sqrId);
     highSquare.style.cursor = "auto";
     highSpan.style.display = "none";
 }
+
+function capturableSqRender(sqrId) {
+    const captSquare = document.getElementById(sqrId);
+    captSquare.classList.contains("capturable") || captSquare.classList.add("capturable");
+}
+
+function RemCapturableSqRender(sqrId) {
+    const captSquare = document.getElementById(sqrId);
+    captSquare.classList.contains("capturable") && captSquare.classList.remove("capturable");
+}
+
 
 export {
     initGameRender, highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender, RemCapturableSqRender, selectedSqRender, remSelectedSqRender

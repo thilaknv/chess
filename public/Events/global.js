@@ -28,6 +28,7 @@ function whitePawnClick(square) {
     const rank = currentPosition[1];
     const col = currentPosition[0];
     let destPiece;
+    if (rank == 8) return;
 
     let destinId = `${col}${Number(rank) + 1}`;
     action.srcSquare = square;
@@ -54,12 +55,6 @@ function whitePawnClick(square) {
             }
         }
     }
-    action.highLightSquares.forEach(highId => {
-        highLightSqRender(highId);
-    });
-    action.capturableSquares.forEach(capId => {
-        capturableSqRender(capId);
-    });
 }
 
 function blackPawnClick(square) {
@@ -69,6 +64,7 @@ function blackPawnClick(square) {
     const rank = currentPosition[1];
     const col = currentPosition[0];
     let destPiece;
+    if (rank == 1) return;
 
     let destinId = `${col}${Number(rank) - 1}`;
     action.srcSquare = square;
@@ -95,21 +91,15 @@ function blackPawnClick(square) {
             }
         }
     }
-    action.highLightSquares.forEach(highId => {
-        highLightSqRender(highId);
-    });
-    action.capturableSquares.forEach(capId => {
-        capturableSqRender(capId);
-    });
 }
 
 function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
-        let check = true;
+        let check = false;
 
-        if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
+        if ((check = true) && action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
 
             check = false;
             action.destSquare = searchInGameState(clickSquareId);
@@ -151,6 +141,12 @@ function globalEvent() {
             if (square.piece.pieceName == 'blackPawn') {
                 blackPawnClick(square);
             }
+            action.highLightSquares.forEach(highId => {
+                highLightSqRender(highId);
+            });
+            action.capturableSquares.forEach(capId => {
+                capturableSqRender(capId);
+            });
         }
     });
 }

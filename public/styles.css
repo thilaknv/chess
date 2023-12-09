@@ -54,16 +54,16 @@ body {
     background-color: var(--black);
 }
 
-.capturable {
-    background-color: #ff8c8cb3;
-}
-
 .selectedwhite {
     background-color: #f4f680;
 }
 
 .selectedblack {
     background-color: #bbcc44;
+}
+
+.capturable {
+    background-color: #ff8c8cb3;
 }
 
 .highSpan {
