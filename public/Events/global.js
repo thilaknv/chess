@@ -145,6 +145,7 @@ function bishopClick(square) {
     bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
+
 function rookClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
@@ -158,6 +159,7 @@ function rookClick(square) {
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
+
 function queenClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
@@ -175,8 +177,46 @@ function queenClick(square) {
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
+function kingClick(square) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 97;
+
+    const set = [];
+    if (rank < 8) {
+        if (col > 0) set.push(`${alpha[col - 1]}${rank + 1}`);
+        if (col < 7) set.push(`${alpha[col + 1]}${rank + 1}`);
+        set.push(`${alpha[col]}${rank + 1}`);
+    }
+    if (rank > 1) {
+        if (col > 0) set.push(`${alpha[col - 1]}${rank - 1}`);
+        if (col < 7) set.push(`${alpha[col + 1]}${rank - 1}`);
+        set.push(`${alpha[col]}${rank - 1}`);
+    }
+    if (col > 0) set.push(`${alpha[col - 1]}${rank}`);
+    if (col < 7) set.push(`${alpha[col + 1]}${rank}`);
+
+    set.forEach(destId => {
+        const destSquare = searchInGameState(destId);
+        if (destSquare.piece) {
+            if (destSquare.piece.pieceName[0] != square.piece.pieceName[0]) {
+                action.capturableSquares.push(destId);
+            }
+        }
+        else {
+            action.highLightSquares.push(destId);
+        }
+    });
+}
 
 function globalEvent() {
+    BOARD.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+    });
+
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
@@ -210,6 +250,7 @@ function globalEvent() {
         while (action.highLightSquares.length > 0) {
             remHighLightSqRender(action.highLightSquares.pop());
         }
+
         while (action.capturableSquares.length > 0) {
             RemCapturableSqRender(action.capturableSquares.pop());
         }
@@ -223,11 +264,13 @@ function globalEvent() {
                 case 'whiteBishop': case 'blackBishop': bishopClick(square); break;
                 case 'whiteRook': case 'blackRook': rookClick(square); break;
                 case 'whiteQueen': case 'blackQueen': queenClick(square); break;
-                case 'whiteKing': case 'blackKing': break;
+                case 'whiteKing': case 'blackKing': kingClick(square); break;
             }
+
             action.highLightSquares.forEach(highId => {
                 highLightSqRender(highId);
             });
+
             action.capturableSquares.forEach(capId => {
                 capturableSqRender(capId);
             });

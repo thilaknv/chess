@@ -85,7 +85,6 @@ function renderSquares(srcSquare, destSquare) {
             destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
         }
         destSquareEl.appendChild(pieceEl);
-        console.log(gameState);
     }, 100);
 }
 
