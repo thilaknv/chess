@@ -1,7 +1,36 @@
+const BOARD = document.querySelector("#board");
 const themeSet = [
     ["#e9edcc", "#779954"]
 ]
 let themeCode = 0;
+
+const kingSquare = {
+    black: null,
+    white: null
+};
+
+const blackKingImmediateSet = {
+    topleft: null,
+    top: null,
+    topright: null,
+    left: null,
+    right: null,
+    bottomleft: null,
+    bottom: null,
+    bottomright: null
+};
+
+const whiteKingImmediateSet = {
+    topleft: null,
+    top: null,
+    topright: null,
+    left: null,
+    right: null,
+    bottomleft: null,
+    bottom: null,
+    bottomright: null
+};
+
 const canCastle = {
     black: {
         status: true,
@@ -13,7 +42,7 @@ const canCastle = {
         rooka1Moved: false,
         rookh1Moved: false,
     }
-}
+};
 const territory = {
     black: [
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,7 +64,7 @@ const territory = {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0]
     ]
-}
+};
 
 const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
@@ -60,5 +89,5 @@ function initGame() {
 }
 
 export {
-    Square, SquareRow, initGame, alpha, canCastle
+    Square, SquareRow, initGame, alpha, canCastle, BOARD, kingSquare
 }

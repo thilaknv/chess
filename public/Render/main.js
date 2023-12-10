@@ -1,5 +1,5 @@
 import * as piece from "../Data/pieces.js"
-import { BOARD } from "../Data/constants.js";
+import { BOARD, kingSquare } from "../Data/data.js";
 import { addAnimation, removeAnimation } from "../Events/animation.js";
 import { gameState } from "../app.js";
 
@@ -66,6 +66,8 @@ function initGameRender(data) {
         BOARD.appendChild(rowDiv);
     });
     pieceRender(data);
+    kingSquare.black = gameState[0][4].piece;
+    kingSquare.white = gameState[7][4].piece;
 }
 
 function renderSquares(srcSquare, destSquare) {

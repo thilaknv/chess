@@ -1,12 +1,15 @@
-import { BOARD } from "../Data/constants.js";
 import { gameState } from "../app.js";
 import {
     highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender,
     RemCapturableSqRender, selectedSqRender,
     remSelectedSqRender
 } from "../Render/main.js";
-import { alpha, canCastle } from "../Data/data.js";
-import { bottom, bottomLeft, bottomRight, left, right, top, topLeft, topRight } from "./traverse.js";
+import { alpha, canCastle, BOARD, kingSquare } from "../Data/data.js";
+import {
+    topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
+    checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
+    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight
+} from "./traverse.js";
 
 const action = {
     highLightSquares: [],
@@ -239,6 +242,23 @@ function castlingHelper(color) {
 
 }
 
+function checkForKing(color) {
+    let id = kingSquare[color == 'black' ? 'white' : 'black'].currentPosition;
+    const row = 8 - Number(id[1]);
+    const col = id.charCodeAt(0) - 97;
+
+    let checks = checksFromTopLeft(row - 1, col - 1, color);
+    checks += checksFromTop(row - 1, col, color);
+    if (checks < 2) checks += checksFromTopRight(row - 1, col + 1, color);
+    if (checks < 2) checks += checksFromLeft(row, col - 1, color);
+    if (checks < 2) checks += checksFromRight(row, col + 1, color);
+    if (checks < 2) checks += checksFromBottomLeft(row + 1, col - 1, color);
+    if (checks < 2) checks += checksFromBottomRight(row + 1, col + 1, color);
+    if (checks < 2) checks += checksFromBottom(row + 1, col, color);
+    if (checks < 2) checks += checksFromKnight(row, col, color);
+    return checks;
+}
+
 function movementHelper(clickSquareId, movingPiece) {
 
     action.destSquare = searchInGameState(clickSquareId);
@@ -308,6 +328,7 @@ function globalEvent() {
                     }
                 }
             }
+            console.log(`Total Checks on ${color == 'black' ? 'white' : 'black'} ` + checkForKing(color));
         }
 
         // removing old highlights
