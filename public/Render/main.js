@@ -1,6 +1,7 @@
 import * as piece from "../Data/pieces.js"
 import { BOARD } from "../Data/constants.js";
 import { addAnimation, removeAnimation } from "../Events/animation.js";
+import { gameState } from "../app.js";
 
 
 
@@ -68,22 +69,23 @@ function initGameRender(data) {
 }
 
 function renderSquares(srcSquare, destSquare) {
-    const piece = document.querySelector(`#${srcSquare.id} img`);
+    const pieceEl = document.querySelector(`#${srcSquare.id} img`);
     const unit = BOARD.offsetHeight / 8;
-    addAnimation(piece, srcSquare.id, destSquare.id, unit);
+    addAnimation(pieceEl, srcSquare.id, destSquare.id, unit);
 
     setTimeout(() => {
-        removeAnimation(piece);
+        removeAnimation(pieceEl);
         const destSquareEl = document.getElementById(destSquare.id);
         const childern = destSquareEl.childNodes;
         if (childern.length == 2)
             destSquareEl.removeChild(childern[1]);
-        if (piece.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
-            piece.src = piece.src.replace("pawn", "queen");
-            destSquare.piece.pieceName = "queen";
+        if (pieceEl.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
+            pieceEl.src = pieceEl.src.replace("pawn", "queen");
+            destSquare.piece.pieceName = destSquare.piece.pieceName.replace("Pawn", "Queen");
             destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
         }
-        destSquareEl.appendChild(piece);
+        destSquareEl.appendChild(pieceEl);
+        console.log(gameState);
     }, 100);
 }
 
@@ -115,12 +117,14 @@ function remHighLightSqRender(sqrId) {
 
 function capturableSqRender(sqrId) {
     const captSquare = document.getElementById(sqrId);
-    captSquare.classList.contains("capturable") || captSquare.classList.add("capturable");
+    const classs = `capturable${(sqrId.charCodeAt(0) + sqrId.charCodeAt(1)) % 2 == 1 ? 'white' : 'black'}`;
+    captSquare.classList.contains(classs) || captSquare.classList.add(classs);
 }
 
 function RemCapturableSqRender(sqrId) {
     const captSquare = document.getElementById(sqrId);
-    captSquare.classList.contains("capturable") && captSquare.classList.remove("capturable");
+    const classs = `capturable${(sqrId.charCodeAt(0) + sqrId.charCodeAt(1)) % 2 == 1 ? 'white' : 'black'}`;
+    captSquare.classList.contains(classs) && captSquare.classList.remove(classs);
 }
 
 

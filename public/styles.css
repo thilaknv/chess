@@ -62,8 +62,12 @@ body {
     background-color: #bbcc44;
 }
 
-.capturable {
-    background-color: #ff8c8cb3;
+.capturablewhite {
+    background-color: rgba(255, 200, 140, 0.8);
+}
+
+.capturableblack {
+    background-color: rgba(255, 160, 140, 0.8);
 }
 
 .highSpan {
