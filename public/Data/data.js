@@ -2,6 +2,18 @@ const themeSet = [
     ["#e9edcc", "#779954"]
 ]
 let themeCode = 0;
+const canCastle = {
+    black: {
+        status: true,
+        rooka8Moved: false,
+        rookh8Moved: false,
+    },
+    white: {
+        status: true,
+        rooka1Moved: false,
+        rookh1Moved: false,
+    }
+}
 const territory = {
     black: [
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,5 +60,5 @@ function initGame() {
 }
 
 export {
-    Square, SquareRow, initGame, alpha
+    Square, SquareRow, initGame, alpha, canCastle
 }

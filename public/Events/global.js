@@ -5,7 +5,7 @@ import {
     RemCapturableSqRender, selectedSqRender,
     remSelectedSqRender
 } from "../Render/main.js";
-import { alpha } from "../Data/data.js";
+import { alpha, canCastle } from "../Data/data.js";
 import { bottom, bottomLeft, bottomRight, left, right, top, topLeft, topRight } from "./traverse.js";
 
 const action = {
@@ -15,6 +15,9 @@ const action = {
     destSquare: null,
     prevMoveSquares: []
 };
+
+let checkPrevClickIsKing1 = false;
+let checkPrevClickIsKing2 = true;
 
 function searchInGameState(id) {
     const col = id.charCodeAt(0) - 97;
@@ -177,7 +180,8 @@ function queenClick(square) {
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
-function kingClick(square) {
+
+function kingClick(square, color) {
     selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
@@ -202,7 +206,7 @@ function kingClick(square) {
     set.forEach(destId => {
         const destSquare = searchInGameState(destId);
         if (destSquare.piece) {
-            if (destSquare.piece.pieceName[0] != square.piece.pieceName[0]) {
+            if (destSquare.piece.pieceName[0] != color[0]) {
                 action.capturableSquares.push(destId);
             }
         }
@@ -210,6 +214,49 @@ function kingClick(square) {
             action.highLightSquares.push(destId);
         }
     });
+
+    if (canCastle[color].status) {
+        castlingHelper(color);
+    }
+}
+
+function castlingHelper(color) {
+    const rank = color == "black" ? 8 : 1;
+    const colorType = canCastle[color];
+    // shortside rook
+    if (!canCastle[color][`rookh${rank}Moved`] && !searchInGameState(`f${rank}`).piece && !searchInGameState(`g${rank}`).piece) {
+        action.highLightSquares.push(`h${rank}`);
+        action.highLightSquares.push(`g${rank}`);
+        checkPrevClickIsKing1 = true;
+    }
+
+    // longside rook
+    if (!canCastle[color][`rooka${rank}Moved`] && !searchInGameState(`d${rank}`).piece && !searchInGameState(`c${rank}`).piece && !searchInGameState(`b${rank}`).piece) {
+        action.highLightSquares.push(`a${rank}`);
+        action.highLightSquares.push(`c${rank}`);
+        checkPrevClickIsKing1 = true;
+    }
+
+}
+
+function movementHelper(clickSquareId, movingPiece) {
+
+    action.destSquare = searchInGameState(clickSquareId);
+    movingPiece.currentPosition = clickSquareId;
+    action.destSquare.piece = movingPiece;
+    action.srcSquare.piece = undefined;
+
+    if (checkPrevClickIsKing2) {
+        while (action.prevMoveSquares.length)
+            remSelectedSqRender(action.prevMoveSquares.pop());
+    }
+
+    renderSquares(action.srcSquare, action.destSquare);
+    selectedSqRender(action.destSquare);
+    selectedSqRender(action.srcSquare);
+
+    action.prevMoveSquares.push(action.srcSquare);
+    action.prevMoveSquares.push(action.destSquare);
 }
 
 function globalEvent() {
@@ -223,24 +270,44 @@ function globalEvent() {
         let check = true;
 
         if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
+            checkPrevClickIsKing2 = true;
+
+            const movingPiece = action.srcSquare.piece;
+            const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
             check = false;
-            action.destSquare = searchInGameState(clickSquareId);
-            const movingPiece = action.srcSquare.piece;
 
-            movingPiece.currentPosition = clickSquareId;
-            action.destSquare.piece = movingPiece;
-            action.srcSquare.piece = undefined;
+            if (checkPrevClickIsKing1) {
+                if (clickSquareId[0] == 'h')
+                    clickSquareId = `g${color == 'black' ? 8 : 1}`;
+                if (clickSquareId[0] == 'a')
+                    clickSquareId = `c${color == 'black' ? 8 : 1}`;
+            }
 
-            while (action.prevMoveSquares.length)
-                remSelectedSqRender(action.prevMoveSquares.pop());
+            movementHelper(clickSquareId, movingPiece);
 
-            renderSquares(action.srcSquare, action.destSquare);
-            selectedSqRender(action.destSquare);
-            selectedSqRender(action.srcSquare);
+            if (checkPrevClickIsKing1) {
+                checkPrevClickIsKing2 = false;
+                let clickSquareId2 = `${clickSquareId[0] == 'g' ? 'f' : 'd'}${clickSquareId[1]}`;
+                let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
+                action.srcSquare = searchInGameState(tempId);
+                const movingPiece2 = action.srcSquare.piece;
+                movementHelper(clickSquareId2, movingPiece2);
+            }
 
-            action.prevMoveSquares.push(action.srcSquare);
-            action.prevMoveSquares.push(action.destSquare);
+            if (canCastle[color].status) {
+                if (movingPiece.pieceName.includes("King")) {
+                    canCastle[color].status = false;
+                }
+                else if (movingPiece.pieceName.includes("Rook")) {
+                    const colChar = action.srcSquare.id.charAt(0);
+                    if (colChar == 'a' || colChar == 'h') {
+                        const rank = color == 'black' ? 8 : 1;
+                        canCastle[color][`rook${colChar}${rank}Moved`] = true;
+                        canCastle[color].status = !canCastle[color][`rooka${rank}Moved`] || !canCastle[color][`rookh${rank}Moved`];
+                    }
+                }
+            }
         }
 
         // removing old highlights
@@ -255,6 +322,7 @@ function globalEvent() {
             RemCapturableSqRender(action.capturableSquares.pop());
         }
 
+        checkPrevClickIsKing1 = false;
         if (check && localName == 'img') {
             const square = searchInGameState(clickSquareId);
             switch (square.piece.pieceName) {
@@ -264,7 +332,8 @@ function globalEvent() {
                 case 'whiteBishop': case 'blackBishop': bishopClick(square); break;
                 case 'whiteRook': case 'blackRook': rookClick(square); break;
                 case 'whiteQueen': case 'blackQueen': queenClick(square); break;
-                case 'whiteKing': case 'blackKing': kingClick(square); break;
+                case 'whiteKing': kingClick(square, 'white'); break;
+                case 'blackKing': kingClick(square, 'black'); break;
             }
 
             action.highLightSquares.forEach(highId => {
