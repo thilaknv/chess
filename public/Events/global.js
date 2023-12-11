@@ -8,7 +8,7 @@ import { alpha, canCastle, BOARD, kingSquare } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
-    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight
+    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight, findAllKingsMove
 } from "./traverse.js";
 
 const action = {
@@ -16,7 +16,8 @@ const action = {
     capturableSquares: [],
     srcSquare: null,
     destSquare: null,
-    prevMoveSquares: []
+    prevMoveSquares: [],
+    prevColor: 'black'
 };
 
 let checkPrevClickIsKing1 = false;
@@ -184,14 +185,7 @@ function queenClick(square) {
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
 }
 
-function kingClick(square, color) {
-    selectedSqRender(square);
-    action.srcSquare = square;
-    const piece = square.piece;
-    const currentPosition = piece.currentPosition;
-    const rank = Number(currentPosition[1]);
-    const col = currentPosition.charCodeAt(0) - 97;
-
+function kingClickHelper(rank, col, color) {
     const set = [];
     if (rank < 8) {
         if (col > 0) set.push(`${alpha[col - 1]}${rank + 1}`);
@@ -206,17 +200,36 @@ function kingClick(square, color) {
     if (col > 0) set.push(`${alpha[col - 1]}${rank}`);
     if (col < 7) set.push(`${alpha[col + 1]}${rank}`);
 
+    let tempObj = {
+        high: [],
+        capt: []
+    }
     set.forEach(destId => {
         const destSquare = searchInGameState(destId);
         if (destSquare.piece) {
             if (destSquare.piece.pieceName[0] != color[0]) {
-                action.capturableSquares.push(destId);
+                tempObj.capt.push(destId);
             }
         }
         else {
-            action.highLightSquares.push(destId);
+            tempObj.high.push(destId);
         }
     });
+    return tempObj;
+}
+
+function kingClick(square, color) {
+    selectedSqRender(square);
+    action.srcSquare = square;
+    const piece = square.piece;
+    const currentPosition = piece.currentPosition;
+    const rank = Number(currentPosition[1]);
+    const col = currentPosition.charCodeAt(0) - 97;
+
+    const tempObj = kingClickHelper(rank, col, color);
+
+    action.highLightSquares = tempObj.high;
+    action.capturableSquares = tempObj.capt;
 
     if (canCastle[color].status) {
         castlingHelper(color);
@@ -247,13 +260,13 @@ function checkForKing(color) {
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
 
-    let checks = checksFromTopLeft(row - 1, col - 1, color);
+    let checks = checksFromTopLeft(row - 1, col - 1, color, 0);
     checks += checksFromTop(row - 1, col, color);
-    if (checks < 2) checks += checksFromTopRight(row - 1, col + 1, color);
+    if (checks < 2) checks += checksFromTopRight(row - 1, col + 1, color, 0);
     if (checks < 2) checks += checksFromLeft(row, col - 1, color);
     if (checks < 2) checks += checksFromRight(row, col + 1, color);
-    if (checks < 2) checks += checksFromBottomLeft(row + 1, col - 1, color);
-    if (checks < 2) checks += checksFromBottomRight(row + 1, col + 1, color);
+    if (checks < 2) checks += checksFromBottomLeft(row + 1, col - 1, color, 0);
+    if (checks < 2) checks += checksFromBottomRight(row + 1, col + 1, color, 0);
     if (checks < 2) checks += checksFromBottom(row + 1, col, color);
     if (checks < 2) checks += checksFromKnight(row, col, color);
     return checks;
@@ -290,10 +303,13 @@ function globalEvent() {
         let check = true;
 
         if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
+
             checkPrevClickIsKing2 = true;
 
             const movingPiece = action.srcSquare.piece;
             const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
+
+            if (color[0] == action.prevColor[0]) return;
 
             check = false;
 
@@ -328,7 +344,9 @@ function globalEvent() {
                     }
                 }
             }
+            action.prevColor = color;
             console.log(`Total Checks on ${color == 'black' ? 'white' : 'black'} ` + checkForKing(color));
+            findAllKingsMove("white");
         }
 
         // removing old highlights
@@ -369,5 +387,5 @@ function globalEvent() {
 }
 
 export {
-    globalEvent, searchInGameState
+    globalEvent, searchInGameState, kingClickHelper
 }

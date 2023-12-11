@@ -1,6 +1,6 @@
 import { gameState } from "../app.js";
-import { alpha, BOARD } from "../Data/data.js";
-import { searchInGameState } from "./global.js";
+import { alpha, BOARD, kingSquare } from "../Data/data.js";
+import { kingClickHelper, searchInGameState } from "./global.js";
 
 function topLeft(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j < 0) return;
@@ -111,6 +111,8 @@ function checksFromTopLeft(row, col, color, depth) {
         return checksFromTopLeft(row - 1, col - 1, color, 1);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromTopLeft(row - 1, col - 1, color, 1);
         return 0;
     }
 
@@ -134,6 +136,8 @@ function checksFromTop(row, col, color) {
         return checksFromTop(row - 1, col, color);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromTop(row - 1, col, color);
         return 0;
     }
 
@@ -153,6 +157,8 @@ function checksFromTopRight(row, col, color, depth) {
         return checksFromTopRight(row - 1, col + 1, color, 1);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromTopRight(row - 1, col + 1, color, 1);
         return 0;
     }
 
@@ -173,9 +179,11 @@ function checksFromLeft(row, col, color) {
 
 
     if (!piece)
-        return checksFromLeft(row, col - 1, color, 1);
+        return checksFromLeft(row, col - 1, color);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromLeft(row, col - 1, color);
         return 0;
     }
 
@@ -192,9 +200,11 @@ function checksFromRight(row, col, color) {
 
 
     if (!piece)
-        return checksFromRight(row, col + 1, color, 1);
+        return checksFromRight(row, col + 1, color);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromRight(row, col + 1, color);
         return 0;
     }
 
@@ -214,6 +224,8 @@ function checksFromBottomLeft(row, col, color, depth) {
         return checksFromBottomLeft(row + 1, col - 1, color, 1);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromBottomLeft(row + 1, col - 1, color, 1);
         return 0;
     }
 
@@ -237,6 +249,8 @@ function checksFromBottomRight(row, col, color, depth) {
         return checksFromBottomRight(row + 1, col + 1, color, 1);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromBottomRight(row + 1, col + 1, color, 1);
         return 0;
     }
 
@@ -257,9 +271,11 @@ function checksFromBottom(row, col, color) {
 
 
     if (!piece)
-        return checksFromBottom(row + 1, col, color, 1);
+        return checksFromBottom(row + 1, col, color);
 
     if (color[0] != piece.pieceName[0]) {
+        if (piece.pieceName.includes('King'))
+            return checksFromBottom(row + 1, col, color);
         return 0;
     }
 
@@ -291,9 +307,72 @@ function checksFromKnight(row, col, color) {
     return 0;
 }
 
+function findAllKingsMove(color) {
+    const kingSqr = kingSquare[color];
+    const kingRank = Number(kingSqr.currentPosition[1]);
+    const kingCol = kingSqr.currentPosition.charCodeAt(0) - 97;
+    let kingMoves = kingClickHelper(kingRank, kingCol, color);
+
+    const kingRow = 8 - kingRank;
+    kingMoves.high = kingMoves.high.filter((id) => {
+        const row = 8 - Number(id[1]);
+        const col = id.charCodeAt(0) - 97;
+        const color2 = color == 'black' ? 'white' : 'black';
+        if (checksFromTopLeft(row - 1, col - 1, color2, 0))
+            return false;
+        if (checksFromTop(row - 1, col, color2))
+            return false;
+        if (checksFromTopRight(row - 1, col + 1, color2, 0))
+            return false;
+        if (checksFromLeft(row, col - 1, color2))
+            return false;
+        if (checksFromRight(row, col + 1, color2))
+            return false;
+        if (checksFromBottomLeft(row + 1, col - 1, color2, 0))
+            return false;
+        if (checksFromBottomRight(row + 1, col + 1, color2, 0))
+            return false;
+        if (checksFromBottom(row + 1, col, color2))
+            return false;
+        if (checksFromKnight(row, col, color2))
+            return false;
+        return true;
+    });
+    kingMoves.capt = kingMoves.capt.filter((id) => {
+        const row = 8 - Number(id[1]);
+        const col = id.charCodeAt(0) - 97;
+        const color2 = color == 'black' ? 'white' : 'black';
+        if (checksFromTopLeft(row - 1, col - 1, color2, 0))
+            return false;
+        if (checksFromTop(row - 1, col, color2))
+            return false;
+        if (checksFromTopRight(row - 1, col + 1, color2, 0))
+            return false;
+        if (checksFromLeft(row, col - 1, color2))
+            return false;
+        if (checksFromRight(row, col + 1, color2))
+            return false;
+        if (checksFromBottomLeft(row + 1, col - 1, color2, 0))
+            return false;
+        if (checksFromBottomRight(row + 1, col + 1, color2, 0))
+            return false;
+        if (checksFromBottom(row + 1, col, color2))
+            return false;
+        if (checksFromKnight(row, col, color2))
+            return false;
+        return true;
+    });
+    console.log(kingMoves);
+}
+
+function findMovesDuringCheck() {
+    const set = [];
+
+}
 
 export {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
-    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight
+    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
+    findAllKingsMove
 }
