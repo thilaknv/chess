@@ -4,11 +4,11 @@ import {
     RemCapturableSqRender, selectedSqRender,
     remSelectedSqRender
 } from "../Render/main.js";
-import { alpha, canCastle, BOARD, kingSquare } from "../Data/data.js";
+import { alpha, canCastle, BOARD, kingSquare, checkDetails } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
-    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight, findAllKingsMove
+    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight, findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper
 } from "./traverse.js";
 
 const action = {
@@ -20,13 +20,26 @@ const action = {
     prevColor: 'black'
 };
 
-let checkPrevClickIsKing1 = false;
-let checkPrevClickIsKing2 = true;
+
+let PrevClickIsKingVar1 = false;
+let PrevClickIsKingVar2 = true;
 
 function searchInGameState(id) {
     const col = id.charCodeAt(0) - 97;
     const row = 8 - Number(id[1]);
     return gameState[row][col];
+}
+
+function filterHelperOther() {
+    action.highLightSquares = action.highLightSquares.filter(id => checkDetails.moveOther.high.includes(id));
+    action.capturableSquares = action.capturableSquares.filter(id => checkDetails.moveOther.capt.includes(id));
+    return true;
+}
+
+function filterHelperKing() {
+    action.highLightSquares.filter(id => checkDetails.moveKing.high.includes(id));
+    action.capturableSquares.filter(id => checkDetails.moveKing.capt.includes(id));
+    return true;
 }
 
 function whitePawnClick(square) {
@@ -63,6 +76,7 @@ function whitePawnClick(square) {
             }
         }
     }
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function blackPawnClick(square) {
@@ -99,6 +113,7 @@ function blackPawnClick(square) {
             }
         }
     }
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function knightClick(square) {
@@ -137,6 +152,7 @@ function knightClick(square) {
             action.highLightSquares.push(destId);
         }
     });
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function bishopClick(square) {
@@ -151,6 +167,8 @@ function bishopClick(square) {
     topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
     bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function rookClick(square) {
@@ -165,6 +183,8 @@ function rookClick(square) {
     bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function queenClick(square) {
@@ -183,6 +203,8 @@ function queenClick(square) {
     bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+
+    checkDetails.oncheck && filterHelperOther();
 }
 
 function kingClickHelper(rank, col, color) {
@@ -221,15 +243,12 @@ function kingClickHelper(rank, col, color) {
 function kingClick(square, color) {
     selectedSqRender(square);
     action.srcSquare = square;
-    const piece = square.piece;
-    const currentPosition = piece.currentPosition;
-    const rank = Number(currentPosition[1]);
-    const col = currentPosition.charCodeAt(0) - 97;
 
-    const tempObj = kingClickHelper(rank, col, color);
+    const tempObj = findKingsMoveOnCheck(color);
 
     action.highLightSquares = tempObj.high;
     action.capturableSquares = tempObj.capt;
+
 
     if (canCastle[color].status) {
         castlingHelper(color);
@@ -241,16 +260,20 @@ function castlingHelper(color) {
     const colorType = canCastle[color];
     // shortside rook
     if (!canCastle[color][`rookh${rank}Moved`] && !searchInGameState(`f${rank}`).piece && !searchInGameState(`g${rank}`).piece) {
-        action.highLightSquares.push(`h${rank}`);
-        action.highLightSquares.push(`g${rank}`);
-        checkPrevClickIsKing1 = true;
+        if (findKingsMoveOnCheckHelper(`f${rank}`) && findKingsMoveOnCheckHelper(`g${rank}`)) {
+            action.highLightSquares.push(`h${rank}`);
+            action.highLightSquares.push(`g${rank}`);
+            PrevClickIsKingVar1 = true;
+        }
     }
 
     // longside rook
     if (!canCastle[color][`rooka${rank}Moved`] && !searchInGameState(`d${rank}`).piece && !searchInGameState(`c${rank}`).piece && !searchInGameState(`b${rank}`).piece) {
-        action.highLightSquares.push(`a${rank}`);
-        action.highLightSquares.push(`c${rank}`);
-        checkPrevClickIsKing1 = true;
+        if (findKingsMoveOnCheckHelper(`c${rank}`) && findKingsMoveOnCheckHelper(`d${rank}`)) {
+            action.highLightSquares.push(`a${rank}`);
+            action.highLightSquares.push(`c${rank}`);
+            PrevClickIsKingVar1 = true;
+        }
     }
 
 }
@@ -260,15 +283,18 @@ function checkForKing(color) {
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
 
-    let checks = checksFromTopLeft(row - 1, col - 1, color, 0);
+    let checks = 0;
+
+    checks += checksFromKnight(row, col, color);
     checks += checksFromTop(row - 1, col, color);
-    if (checks < 2) checks += checksFromTopRight(row - 1, col + 1, color, 0);
-    if (checks < 2) checks += checksFromLeft(row, col - 1, color);
-    if (checks < 2) checks += checksFromRight(row, col + 1, color);
-    if (checks < 2) checks += checksFromBottomLeft(row + 1, col - 1, color, 0);
-    if (checks < 2) checks += checksFromBottomRight(row + 1, col + 1, color, 0);
-    if (checks < 2) checks += checksFromBottom(row + 1, col, color);
-    if (checks < 2) checks += checksFromKnight(row, col, color);
+    checks += checksFromLeft(row, col - 1, color);
+    checks += checksFromRight(row, col + 1, color);
+    checks += checksFromBottom(row + 1, col, color);
+    checks += checksFromTopLeft(row - 1, col - 1, color, 0);
+    checks += checksFromTopRight(row - 1, col + 1, color, 0);
+    checks += checksFromBottomLeft(row + 1, col - 1, color, 0);
+    checks += checksFromBottomRight(row + 1, col + 1, color, 0);
+
     return checks;
 }
 
@@ -279,7 +305,7 @@ function movementHelper(clickSquareId, movingPiece) {
     action.destSquare.piece = movingPiece;
     action.srcSquare.piece = undefined;
 
-    if (checkPrevClickIsKing2) {
+    if (PrevClickIsKingVar2) {
         while (action.prevMoveSquares.length)
             remSelectedSqRender(action.prevMoveSquares.pop());
     }
@@ -300,20 +326,20 @@ function globalEvent() {
     BOARD.addEventListener("click", (event) => {
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
-        let check = true;
+        let tempBool = true;
 
         if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
 
-            checkPrevClickIsKing2 = true;
+            PrevClickIsKingVar2 = true;
 
             const movingPiece = action.srcSquare.piece;
             const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
             if (color[0] == action.prevColor[0]) return;
 
-            check = false;
+            tempBool = false;
 
-            if (checkPrevClickIsKing1) {
+            if (PrevClickIsKingVar1) {
                 if (clickSquareId[0] == 'h')
                     clickSquareId = `g${color == 'black' ? 8 : 1}`;
                 if (clickSquareId[0] == 'a')
@@ -322,8 +348,8 @@ function globalEvent() {
 
             movementHelper(clickSquareId, movingPiece);
 
-            if (checkPrevClickIsKing1) {
-                checkPrevClickIsKing2 = false;
+            if (PrevClickIsKingVar1) {
+                PrevClickIsKingVar2 = false;
                 let clickSquareId2 = `${clickSquareId[0] == 'g' ? 'f' : 'd'}${clickSquareId[1]}`;
                 let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
                 action.srcSquare = searchInGameState(tempId);
@@ -344,9 +370,30 @@ function globalEvent() {
                     }
                 }
             }
+
             action.prevColor = color;
-            console.log(`Total Checks on ${color == 'black' ? 'white' : 'black'} ` + checkForKing(color));
-            findAllKingsMove("white");
+            let checkCount;
+            checkDetails.oncheck = false;
+            checkDetails.on2Xcheck = false;
+            if ((checkCount = checkForKing(color))) {
+                checkDetails.oncheck = true;
+                const color2 = color == 'black' ? 'white' : 'black';
+                const kingsMoveOnCheck = findKingsMoveOnCheck(color2);
+                checkDetails.moveKing.high = kingsMoveOnCheck.high;
+                checkDetails.moveKing.capt = kingsMoveOnCheck.capt;
+
+                if (checkCount > 1) {
+                    checkDetails.on2Xcheck = true;
+                    if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0)
+                        console.log("Checkmate");
+                }
+
+                else {
+                    const OtherMoveOnCheck = findOtherMoveOnCheck(color2);
+                    checkDetails.moveOther.high = OtherMoveOnCheck.high;
+                    checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
+                }
+            }
         }
 
         // removing old highlights
@@ -361,18 +408,30 @@ function globalEvent() {
             RemCapturableSqRender(action.capturableSquares.pop());
         }
 
-        checkPrevClickIsKing1 = false;
-        if (check && localName == 'img') {
+        PrevClickIsKingVar1 = false;
+        if (tempBool && localName == 'img') {
             const square = searchInGameState(clickSquareId);
             switch (square.piece.pieceName) {
-                case 'whitePawn': whitePawnClick(square); break;
-                case 'blackPawn': blackPawnClick(square); break;
-                case 'whiteKnight': case 'blackKnight': knightClick(square); break;
-                case 'whiteBishop': case 'blackBishop': bishopClick(square); break;
-                case 'whiteRook': case 'blackRook': rookClick(square); break;
-                case 'whiteQueen': case 'blackQueen': queenClick(square); break;
-                case 'whiteKing': kingClick(square, 'white'); break;
-                case 'blackKing': kingClick(square, 'black'); break;
+                case 'whitePawn':
+                    checkDetails.on2Xcheck || whitePawnClick(square); break;
+                case 'blackPawn':
+                    checkDetails.on2Xcheck || blackPawnClick(square); break;
+                case 'whiteKnight':
+                case 'blackKnight':
+                    checkDetails.on2Xcheck || knightClick(square); break;
+                case 'whiteBishop':
+                case 'blackBishop':
+                    checkDetails.on2Xcheck || bishopClick(square); break;
+                case 'whiteRook':
+                case 'blackRook':
+                    checkDetails.on2Xcheck || rookClick(square); break;
+                case 'whiteQueen':
+                case 'blackQueen':
+                    checkDetails.on2Xcheck || queenClick(square); break;
+                case 'whiteKing':
+                    kingClick(square, 'white'); break;
+                case 'blackKing':
+                    kingClick(square, 'black'); break;
             }
 
             action.highLightSquares.forEach(highId => {

@@ -4,6 +4,28 @@ const themeSet = [
 ]
 let themeCode = 0;
 
+const opposite = {
+    black: 'white',
+    white: 'black'
+};
+
+const checkDetails = {
+    oncheck: false,
+    on2Xcheck: false,
+    checker: {
+        row: null,
+        col: null
+    },
+    moveKing: {
+        high: [],
+        capt: []
+    },
+    moveOther: {
+        high: [],
+        capt: []
+    }
+}
+
 const kingSquare = {
     black: null,
     white: null
@@ -89,5 +111,9 @@ function initGame() {
 }
 
 export {
-    Square, SquareRow, initGame, alpha, canCastle, BOARD, kingSquare
+    alpha, canCastle, BOARD, kingSquare, checkDetails
+}
+
+export {
+    Square, SquareRow, initGame
 }
