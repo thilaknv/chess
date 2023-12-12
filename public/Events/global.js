@@ -4,7 +4,7 @@ import {
     RemCapturableSqRender, selectedSqRender,
     remSelectedSqRender
 } from "../Render/main.js";
-import { alpha, canCastle, BOARD, kingSquare, checkDetails } from "../Data/data.js";
+import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
@@ -24,10 +24,23 @@ const action = {
 let PrevClickIsKingVar1 = false;
 let PrevClickIsKingVar2 = true;
 
+
+
 function searchInGameState(id) {
     const col = id.charCodeAt(0) - 97;
     const row = 8 - Number(id[1]);
     return gameState[row][col];
+}
+
+function searchInKingImm(color, id) {
+    if (kingImmediateSet[color].topleft == id) return 'topleft';
+    if (kingImmediateSet[color].top == id) return 'top';
+    if (kingImmediateSet[color].topright == id) return 'topright';
+    if (kingImmediateSet[color].left == id) return 'left';
+    if (kingImmediateSet[color].right == id) return 'right';
+    if (kingImmediateSet[color].bottomleft == id) return 'bottomleft';
+    if (kingImmediateSet[color].bottom == id) return 'bottom';
+    if (kingImmediateSet[color].bottomright == id) return 'bottomright';
 }
 
 function filterHelperOther() {
@@ -36,10 +49,69 @@ function filterHelperOther() {
     return true;
 }
 
-function filterHelperKing() {
-    action.highLightSquares.filter(id => checkDetails.moveKing.high.includes(id));
-    action.capturableSquares.filter(id => checkDetails.moveKing.capt.includes(id));
-    return true;
+function filterKingImmMoveHelper1(char) {
+    action.highLightSquares = action.highLightSquares.filter(id => id.includes(char));
+    action.capturableSquares = action.capturableSquares.filter(id => id.includes(char));
+}
+
+function filterKingImmMoveHelper2(Row, Col) {
+    action.highLightSquares = action.highLightSquares.filter(id => {
+        const row = 8 - Number(id[0]);
+        const col = id.charCodeAt(1) - 97;
+        return Math.abs(Row - row) == Math.abs(Col - col);
+    });
+    action.capturableSquares = action.capturableSquares.filter(id => {
+        const row = 8 - Number(id[0]);
+        const col = id.charCodeAt(1) - 97;
+        return Math.abs(Row - row) == Math.abs(Col - col);
+    });
+}
+
+function filterKingImmMove(direction, id, color) {
+    const row = 8 - Number(id[1]);
+    const col = id.charCodeAt(0) - 97;
+
+    switch (direction) {
+        case 'left': checksFromLeft(row, col, color) && filterKingImmMoveHelper1(id[1]); break;
+        case 'right': checksFromRight(row, col, color) && filterKingImmMoveHelper1(id[1]); break;
+
+        case 'top': checksFromTop(row, col, color) && filterKingImmMoveHelper1(id[0]); break;
+        case 'bottom': checksFromBottom(row, col, color) && filterKingImmMoveHelper1(id[0]); break;
+
+        case 'topright': checksFromTopRight(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+        case 'bottomleft': checksFromBottomLeft(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+
+        case 'topleft': checksFromTopLeft(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+        case 'bottomright': checksFromBottomRight(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+    }
+}
+
+function updateKingImmMoveHelper() {
+    return `${alpha[checkDetails.checker.col]}${8 - checkDetails.checker.row}`
+}
+
+function updateKingImmMove(color) {
+    const kingSqr = kingSquare[color];
+    const row = 8 - Number(kingSqr.currentPosition[1]);
+    const col = kingSqr.currentPosition.charCodeAt(0) - 97;
+
+    if (checksFromTop(row - 1, col, color)) kingImmediateSet[color].top = updateKingImmMoveHelper();
+    else kingImmediateSet[color].top = null;
+    if (checksFromLeft(row, col - 1, color)) kingImmediateSet[color].left = updateKingImmMoveHelper();
+    else kingImmediateSet[color].left = null;
+    if (checksFromRight(row, col + 1, color)) kingImmediateSet[color].right = updateKingImmMoveHelper();
+    else kingImmediateSet[color].right = null;
+    if (checksFromBottom(row + 1, col, color)) kingImmediateSet[color].bottom = updateKingImmMoveHelper();
+    else kingImmediateSet[color].bottom = null;
+    if (checksFromTopLeft(row - 1, col - 1, color, 0)) kingImmediateSet[color].topLeft = updateKingImmMoveHelper();
+    else kingImmediateSet[color].topLeft = null;
+    if (checksFromTopRight(row - 1, col + 1, color, 0)) kingImmediateSet[color].topRight = updateKingImmMoveHelper();
+    else kingImmediateSet[color].topRight = null;
+    if (checksFromBottomLeft(row + 1, col - 1, color, 0)) kingImmediateSet[color].bottomLeft = updateKingImmMoveHelper();
+    else kingImmediateSet[color].bottomLeft = null;
+    if (checksFromBottomRight(row + 1, col + 1, color, 0)) kingImmediateSet[color].bottomRight = updateKingImmMoveHelper();
+    else kingImmediateSet[color].bottomRight = null;
+
 }
 
 function whitePawnClick(square) {
@@ -48,6 +120,7 @@ function whitePawnClick(square) {
     const currentPosition = piece.currentPosition;
     const rank = currentPosition[1];
     const col = currentPosition[0];
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     let destPiece;
     if (rank == 8) return;
 
@@ -76,12 +149,19 @@ function whitePawnClick(square) {
             }
         }
     }
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
+
+
 
 function blackPawnClick(square) {
     selectedSqRender(square);
     const piece = square.piece;
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
     const rank = currentPosition[1];
     const col = currentPosition[0];
@@ -113,6 +193,10 @@ function blackPawnClick(square) {
             }
         }
     }
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
 
@@ -120,6 +204,7 @@ function knightClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
     const rank = Number(currentPosition[1]);
     const col = currentPosition.charCodeAt(0) - 96;
@@ -152,6 +237,10 @@ function knightClick(square) {
             action.highLightSquares.push(destId);
         }
     });
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
 
@@ -159,6 +248,7 @@ function bishopClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
     const rank = Number(currentPosition[1]);
     const col = currentPosition.charCodeAt(0) - 96;
@@ -167,7 +257,10 @@ function bishopClick(square) {
     topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
     bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
 
@@ -175,6 +268,7 @@ function rookClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
     const rank = Number(currentPosition[1]);
     const col = currentPosition.charCodeAt(0) - 96;
@@ -183,7 +277,10 @@ function rookClick(square) {
     bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
 
@@ -191,6 +288,7 @@ function queenClick(square) {
     selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
+    const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
     const rank = Number(currentPosition[1]);
     const col = currentPosition.charCodeAt(0) - 96;
@@ -203,7 +301,10 @@ function queenClick(square) {
     bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
     left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
     right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-
+    let direction;
+    if ((direction = searchInKingImm(color, square.id))) {
+        filterKingImmMove(direction, square.id, opposite[color]);
+    }
     checkDetails.oncheck && filterHelperOther();
 }
 
@@ -279,7 +380,7 @@ function castlingHelper(color) {
 }
 
 function checkForKing(color) {
-    let id = kingSquare[color == 'black' ? 'white' : 'black'].currentPosition;
+    let id = kingSquare[opposite[color]].currentPosition;
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
 
@@ -371,13 +472,20 @@ function globalEvent() {
                 }
             }
 
+            updateKingImmMove(color);
+            console.log(kingImmediateSet[color]);
+
             action.prevColor = color;
             let checkCount;
+            checkDetails.oncheck && console.log(checkDetails);
             checkDetails.oncheck = false;
             checkDetails.on2Xcheck = false;
+            checkDetails.oncheck && console.log(checkDetails);
             if ((checkCount = checkForKing(color))) {
                 checkDetails.oncheck = true;
-                const color2 = color == 'black' ? 'white' : 'black';
+                const cRow = checkDetails.checker.row;
+                const cCol = checkDetails.checker.col;
+                const color2 = opposite[color];
                 const kingsMoveOnCheck = findKingsMoveOnCheck(color2);
                 checkDetails.moveKing.high = kingsMoveOnCheck.high;
                 checkDetails.moveKing.capt = kingsMoveOnCheck.capt;
@@ -389,7 +497,7 @@ function globalEvent() {
                 }
 
                 else {
-                    const OtherMoveOnCheck = findOtherMoveOnCheck(color2);
+                    const OtherMoveOnCheck = findOtherMoveOnCheck(color2, cRow, cCol);
                     checkDetails.moveOther.high = OtherMoveOnCheck.high;
                     checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
                 }

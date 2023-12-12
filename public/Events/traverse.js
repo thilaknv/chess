@@ -1,5 +1,5 @@
 import { gameState } from "../app.js";
-import { alpha, BOARD, checkDetails, kingSquare } from "../Data/data.js";
+import { alpha, BOARD, checkDetails, kingSquare, opposite } from "../Data/data.js";
 import { kingClickHelper, searchInGameState } from "./global.js";
 
 function topLeft(highLightSquares, capturableSquares, i, j, type) {
@@ -267,8 +267,7 @@ function checksFromBottomLeft(row, col, color, depth) {
     }
 
     if (piece.pieceName.includes('Bishop') || piece.pieceName.includes('Queen')) {
-        checkDetails.checker.row = row;
-        checkDetails.checker.col = col;
+        addCheckDetails(row, col);
         return 1;
     }
 
@@ -295,8 +294,7 @@ function checksFromBottomRight(row, col, color, depth) {
     }
 
     if (piece.pieceName.includes('Bishop') || piece.pieceName.includes('Queen')) {
-        checkDetails.checker.row = row;
-        checkDetails.checker.col = col;
+        addCheckDetails(row, col);
         return 1;
     }
 
@@ -345,7 +343,7 @@ function checksFromKing(row, col, color) {
 function findKingsMoveOnCheckHelper(id, color) {
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
-    const color2 = color == 'black' ? 'white' : 'black';
+    const color2 = opposite[color];
     if (checksFromKing(row, col, color2)) return false;
     if (checksFromKnight(row, col, color2)) return false;
     if (checksFromTop(row - 1, col, color2)) return false;
@@ -385,12 +383,10 @@ function findOtherMoveOnCheckHelper(row, col, kingRow, kingCol, high) {
     }
 }
 
-function findOtherMoveOnCheck(color) {
+function findOtherMoveOnCheck(color, row, col) {
     const kingSqr = kingSquare[color];
     const kingRow = 8 - Number(kingSqr.currentPosition[1]);
     const kingCol = kingSqr.currentPosition.charCodeAt(0) - 97;
-    const row = checkDetails.checker.row;
-    const col = checkDetails.checker.col;
     const capt = [gameState[row][col].id];
     const high = [];
 

@@ -31,27 +31,28 @@ const kingSquare = {
     white: null
 };
 
-const blackKingImmediateSet = {
-    topleft: null,
-    top: null,
-    topright: null,
-    left: null,
-    right: null,
-    bottomleft: null,
-    bottom: null,
-    bottomright: null
-};
-
-const whiteKingImmediateSet = {
-    topleft: null,
-    top: null,
-    topright: null,
-    left: null,
-    right: null,
-    bottomleft: null,
-    bottom: null,
-    bottomright: null
-};
+const kingImmediateSet = {
+    black: {
+        topleft: null,
+        top: null,
+        topright: null,
+        left: 'd8',
+        right: 'f8',
+        bottomleft: 'd7',
+        bottom: 'e7',
+        bottomright: 'f7'
+    },
+    white: {
+        topleft: 'd2',
+        top: 'e2',
+        topright: 'f2',
+        left: 'd1',
+        right: 'f1',
+        bottomleft: null,
+        bottom: null,
+        bottomright: null
+    }
+}
 
 const canCastle = {
     black: {
@@ -64,28 +65,6 @@ const canCastle = {
         rooka1Moved: false,
         rookh1Moved: false,
     }
-};
-const territory = {
-    black: [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0]
-    ],
-    white: [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0]
-    ]
 };
 
 const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -111,7 +90,7 @@ function initGame() {
 }
 
 export {
-    alpha, canCastle, BOARD, kingSquare, checkDetails
+    alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet
 }
 
 export {
