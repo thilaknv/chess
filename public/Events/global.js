@@ -260,7 +260,7 @@ function castlingHelper(color) {
     const colorType = canCastle[color];
     // shortside rook
     if (!canCastle[color][`rookh${rank}Moved`] && !searchInGameState(`f${rank}`).piece && !searchInGameState(`g${rank}`).piece) {
-        if (findKingsMoveOnCheckHelper(`f${rank}`) && findKingsMoveOnCheckHelper(`g${rank}`)) {
+        if (findKingsMoveOnCheckHelper(`f${rank}`, color) && findKingsMoveOnCheckHelper(`g${rank}`, color)) {
             action.highLightSquares.push(`h${rank}`);
             action.highLightSquares.push(`g${rank}`);
             PrevClickIsKingVar1 = true;
@@ -269,7 +269,7 @@ function castlingHelper(color) {
 
     // longside rook
     if (!canCastle[color][`rooka${rank}Moved`] && !searchInGameState(`d${rank}`).piece && !searchInGameState(`c${rank}`).piece && !searchInGameState(`b${rank}`).piece) {
-        if (findKingsMoveOnCheckHelper(`c${rank}`) && findKingsMoveOnCheckHelper(`d${rank}`)) {
+        if (findKingsMoveOnCheckHelper(`c${rank}`, color) && findKingsMoveOnCheckHelper(`d${rank}`, color)) {
             action.highLightSquares.push(`a${rank}`);
             action.highLightSquares.push(`c${rank}`);
             PrevClickIsKingVar1 = true;
