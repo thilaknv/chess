@@ -301,6 +301,131 @@ function checksFromBottomRight(row, col, color, depth) {
     return 0;
 }
 
+// kings defenders at all direction
+
+function defenderFromTop(row, col, color) {
+    if (row < 0) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromTop(row - 1, col, color);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromLeft(row, col, color) {
+    if (col < 0) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromLeft(row, col - 1, color);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromRight(row, col, color) {
+    if (col > 7) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromRight(row, col + 1, color);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromBottom(row, col, color) {
+    if (row > 7) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromBottom(row + 1, col, color);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromTopLeft(row, col, color) {
+    if (row < 0 || col < 0) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromTopLeft(row - 1, col - 1, color, 1);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromTopRight(row, col, color) {
+    if (row < 0 || col > 7) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromTopRight(row - 1, col + 1, color, 1);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromBottomLeft(row, col, color) {
+    if (row > 7 || col < 0) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromBottomLeft(row + 1, col - 1, color, 1);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+function defenderFromBottomRight(row, col, color) {
+    if (row > 7 || col > 7) return null;
+    const piece = gameState[row][col].piece;
+
+
+    if (!piece)
+        return defenderFromBottomRight(row + 1, col + 1, color, 1);
+
+    if (color[0] != piece.pieceName[0]) {
+        return null;
+    }
+
+    return gameState[row][col].id;
+}
+
+// ------------------
+
+
 function checksFromKnight(row, col, color) {
     let tempPiece, count = 0;
     let name = `${color}Knight`;
@@ -400,5 +525,8 @@ export {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
-    findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper
+    findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
+    defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
+    defenderFromTopLeft, defenderFromTopRight
+
 }

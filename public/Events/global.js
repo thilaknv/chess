@@ -8,7 +8,10 @@ import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmedi
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
-    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight, findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper
+    checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
+    findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
+    defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
+    defenderFromTopLeft, defenderFromTopRight
 } from "./traverse.js";
 
 const action = {
@@ -56,13 +59,13 @@ function filterKingImmMoveHelper1(char) {
 
 function filterKingImmMoveHelper2(Row, Col) {
     action.highLightSquares = action.highLightSquares.filter(id => {
-        const row = 8 - Number(id[0]);
-        const col = id.charCodeAt(1) - 97;
+        const row = 8 - Number(id[1]);
+        const col = id.charCodeAt(0) - 97;
         return Math.abs(Row - row) == Math.abs(Col - col);
     });
     action.capturableSquares = action.capturableSquares.filter(id => {
-        const row = 8 - Number(id[0]);
-        const col = id.charCodeAt(1) - 97;
+        const row = 8 - Number(id[1]);
+        const col = id.charCodeAt(0) - 97;
         return Math.abs(Row - row) == Math.abs(Col - col);
     });
 }
@@ -70,24 +73,19 @@ function filterKingImmMoveHelper2(Row, Col) {
 function filterKingImmMove(direction, id, color) {
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
-
     switch (direction) {
-        case 'left': checksFromLeft(row, col, color) && filterKingImmMoveHelper1(id[1]); break;
-        case 'right': checksFromRight(row, col, color) && filterKingImmMoveHelper1(id[1]); break;
+        case 'left': checksFromLeft(row, col - 1, color) && filterKingImmMoveHelper1(id[1]); break;
+        case 'right': checksFromRight(row, col + 1, color) && filterKingImmMoveHelper1(id[1]); break;
 
-        case 'top': checksFromTop(row, col, color) && filterKingImmMoveHelper1(id[0]); break;
-        case 'bottom': checksFromBottom(row, col, color) && filterKingImmMoveHelper1(id[0]); break;
+        case 'top': checksFromTop(row - 1, col, color) && filterKingImmMoveHelper1(id[0]); break;
+        case 'bottom': checksFromBottom(row + 1, col, color) && filterKingImmMoveHelper1(id[0]); break;
 
-        case 'topright': checksFromTopRight(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
-        case 'bottomleft': checksFromBottomLeft(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+        case 'topright': checksFromTopRight(row - 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
+        case 'bottomleft': checksFromBottomLeft(row + 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
 
-        case 'topleft': checksFromTopLeft(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
-        case 'bottomright': checksFromBottomRight(row, col, color, 1) && filterKingImmMoveHelper2(row, col); break;
+        case 'topleft': checksFromTopLeft(row - 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
+        case 'bottomright': checksFromBottomRight(row + 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
     }
-}
-
-function updateKingImmMoveHelper() {
-    return `${alpha[checkDetails.checker.col]}${8 - checkDetails.checker.row}`
 }
 
 function updateKingImmMove(color) {
@@ -95,24 +93,17 @@ function updateKingImmMove(color) {
     const row = 8 - Number(kingSqr.currentPosition[1]);
     const col = kingSqr.currentPosition.charCodeAt(0) - 97;
 
-    if (checksFromTop(row - 1, col, color)) kingImmediateSet[color].top = updateKingImmMoveHelper();
-    else kingImmediateSet[color].top = null;
-    if (checksFromLeft(row, col - 1, color)) kingImmediateSet[color].left = updateKingImmMoveHelper();
-    else kingImmediateSet[color].left = null;
-    if (checksFromRight(row, col + 1, color)) kingImmediateSet[color].right = updateKingImmMoveHelper();
-    else kingImmediateSet[color].right = null;
-    if (checksFromBottom(row + 1, col, color)) kingImmediateSet[color].bottom = updateKingImmMoveHelper();
-    else kingImmediateSet[color].bottom = null;
-    if (checksFromTopLeft(row - 1, col - 1, color, 0)) kingImmediateSet[color].topLeft = updateKingImmMoveHelper();
-    else kingImmediateSet[color].topLeft = null;
-    if (checksFromTopRight(row - 1, col + 1, color, 0)) kingImmediateSet[color].topRight = updateKingImmMoveHelper();
-    else kingImmediateSet[color].topRight = null;
-    if (checksFromBottomLeft(row + 1, col - 1, color, 0)) kingImmediateSet[color].bottomLeft = updateKingImmMoveHelper();
-    else kingImmediateSet[color].bottomLeft = null;
-    if (checksFromBottomRight(row + 1, col + 1, color, 0)) kingImmediateSet[color].bottomRight = updateKingImmMoveHelper();
-    else kingImmediateSet[color].bottomRight = null;
+    kingImmediateSet[color].top = defenderFromTop(row - 1, col, color);
+    kingImmediateSet[color].left = defenderFromLeft(row, col - 1, color);
+    kingImmediateSet[color].right = defenderFromRight(row, col + 1, color);
+    kingImmediateSet[color].bottom = defenderFromBottom(row + 1, col, color);
+    kingImmediateSet[color].topleft = defenderFromTopLeft(row - 1, col - 1, color);
+    kingImmediateSet[color].topright = defenderFromTopRight(row - 1, col + 1, color);
+    kingImmediateSet[color].bottomleft = defenderFromBottomLeft(row + 1, col - 1, color);
+    kingImmediateSet[color].bottomright = defenderFromBottomRight(row + 1, col + 1, color);
 
 }
+
 
 function whitePawnClick(square) {
     selectedSqRender(square);
@@ -155,8 +146,6 @@ function whitePawnClick(square) {
     }
     checkDetails.oncheck && filterHelperOther();
 }
-
-
 
 function blackPawnClick(square) {
     selectedSqRender(square);
@@ -358,7 +347,6 @@ function kingClick(square, color) {
 
 function castlingHelper(color) {
     const rank = color == "black" ? 8 : 1;
-    const colorType = canCastle[color];
     // shortside rook
     if (!canCastle[color][`rookh${rank}Moved`] && !searchInGameState(`f${rank}`).piece && !searchInGameState(`g${rank}`).piece) {
         if (findKingsMoveOnCheckHelper(`f${rank}`, color) && findKingsMoveOnCheckHelper(`g${rank}`, color)) {
@@ -473,14 +461,11 @@ function globalEvent() {
             }
 
             updateKingImmMove(color);
-            console.log(kingImmediateSet[color]);
 
             action.prevColor = color;
             let checkCount;
-            checkDetails.oncheck && console.log(checkDetails);
             checkDetails.oncheck = false;
             checkDetails.on2Xcheck = false;
-            checkDetails.oncheck && console.log(checkDetails);
             if ((checkCount = checkForKing(color))) {
                 checkDetails.oncheck = true;
                 const cRow = checkDetails.checker.row;
