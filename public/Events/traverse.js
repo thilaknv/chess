@@ -1,6 +1,6 @@
 import { gameState } from "../app.js";
 import { alpha, BOARD, checkDetails, kingSquare, opposite } from "../Data/data.js";
-import { kingClickHelper, searchInGameState } from "./global.js";
+import { kingClickHelper, searchInGameState, searchInKingImm } from "./global.js";
 
 function topLeft(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j < 0) return;
@@ -521,12 +521,57 @@ function findOtherMoveOnCheck(color, row, col) {
     return { high, capt };
 }
 
+function removable(color2) {
+    const id = `${alpha[checkDetails.checker.col]}${8 - checkDetails.checker.row}`;
+    const direction = searchInKingImm(color2, id);
+    const row = 8 - Number(id[1]);
+    const col = id.charCodeAt(0) - 97;
+    switch (direction) {
+        case 'left': if (checksFromLeft(row, col - 1, opposite[color2])) return false;
+        case 'right': if (checksFromRight(row, col + 1, opposite[color2])) return false;
+
+        case 'top': if (checksFromTop(row - 1, col, opposite[color2])) return false;
+        case 'bottom': if (checksFromBottom(row + 1, col, opposite[color2])) return false;
+
+        case 'topright': if (checksFromTopRight(row - 1, col + 1, opposite[color2])) return false;
+        case 'bottomleft': if (checksFromBottomLeft(row + 1, col - 1, opposite[color2])) return false;
+
+        case 'topleft': if (checksFromTopLeft(row - 1, col - 1, opposite[color2])) return false;
+        case 'bottomright': if (checksFromBottomRight(row + 1, col + 1, opposite[color2])) return false;
+        default: return true;
+    }
+}
+
+function isPossibleToDefendCheckHelper(id, color2, depth) {
+    const row = 8 - Number(id[1]);
+    const col = id.charCodeAt(0) - 97;
+    if (checksFromKnight(row, col, color2) && removable(color2)) return true;
+    if (checksFromTop(row - 1, col, color2) && removable(color2)) return true;
+    if (checksFromLeft(row, col - 1, color2) && removable(color2)) return true;
+    if (checksFromRight(row, col + 1, color2) && removable(color2)) return true;
+    if (checksFromBottom(row + 1, col, color2) && removable(color2)) return true;
+    if (checksFromTopLeft(row - 1, col - 1, color2, depth) && removable(color2)) return true;
+    if (checksFromTopRight(row - 1, col + 1, color2, depth) && removable(color2)) return true;
+    if (checksFromBottomLeft(row + 1, col - 1, color2, depth) && removable(color2)) return true;
+    if (checksFromBottomRight(row + 1, col + 1, color2, depth) && removable(color2)) return true;
+    return false;
+}
+
+function isPossibleToDefendCheck(color2, OtherMoveOnCheck) {
+    for (let id of OtherMoveOnCheck.high) {
+        if (isPossibleToDefendCheckHelper(id, color2, 1)) return true;
+    }
+    for (let id of OtherMoveOnCheck.capt) {
+        if (isPossibleToDefendCheckHelper(id, color2, 0)) return true;
+    }
+    return false;
+}
+
 export {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
     findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
-    defenderFromTopLeft, defenderFromTopRight
-
+    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck
 }

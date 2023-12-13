@@ -7,6 +7,8 @@
 * {
     box-sizing: border-box;
     margin: 0px;
+    color: var(--white);
+    font-family: monospace;
 }
 
 body {
@@ -76,6 +78,10 @@ body {
     width: 40%;
     border-radius: 50%;
     background-color: #0000001f;
+}
+
+#result {
+    display: none;
 }
 
 

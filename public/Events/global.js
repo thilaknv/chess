@@ -1,8 +1,7 @@
 import { gameState } from "../app.js";
 import {
     highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender,
-    RemCapturableSqRender, selectedSqRender,
-    remSelectedSqRender
+    RemCapturableSqRender, selectedSqRender, remSelectedSqRender, endGame
 } from "../Render/main.js";
 import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet } from "../Data/data.js";
 import {
@@ -11,7 +10,7 @@ import {
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
     findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
-    defenderFromTopLeft, defenderFromTopRight
+    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck
 } from "./traverse.js";
 
 const action = {
@@ -61,12 +60,12 @@ function filterKingImmMoveHelper2(Row, Col) {
     action.highLightSquares = action.highLightSquares.filter(id => {
         const row = 8 - Number(id[1]);
         const col = id.charCodeAt(0) - 97;
-        return Math.abs(Row - row) == Math.abs(Col - col);
+        return Row - row == Col - col;
     });
     action.capturableSquares = action.capturableSquares.filter(id => {
         const row = 8 - Number(id[1]);
         const col = id.charCodeAt(0) - 97;
-        return Math.abs(Row - row) == Math.abs(Col - col);
+        return Row - row == Col - col;
     });
 }
 
@@ -413,6 +412,7 @@ function globalEvent() {
     });
 
     BOARD.addEventListener("click", (event) => {
+
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
         let tempBool = true;
@@ -424,7 +424,6 @@ function globalEvent() {
             const movingPiece = action.srcSquare.piece;
             const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
-            if (color[0] == action.prevColor[0]) return;
 
             tempBool = false;
 
@@ -437,7 +436,7 @@ function globalEvent() {
 
             movementHelper(clickSquareId, movingPiece);
 
-            if (PrevClickIsKingVar1) {
+            if (PrevClickIsKingVar1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
                 PrevClickIsKingVar2 = false;
                 let clickSquareId2 = `${clickSquareId[0] == 'g' ? 'f' : 'd'}${clickSquareId[1]}`;
                 let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
@@ -477,12 +476,20 @@ function globalEvent() {
 
                 if (checkCount > 1) {
                     checkDetails.on2Xcheck = true;
-                    if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0)
-                        console.log("Checkmate");
+                    if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
+                        endGame(color);
+                        return;
+                    }
                 }
 
                 else {
                     const OtherMoveOnCheck = findOtherMoveOnCheck(color2, cRow, cCol);
+                    if (!isPossibleToDefendCheck(color2, OtherMoveOnCheck)) {
+                        if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
+                            endGame(color);
+                            return;
+                        }
+                    }
                     checkDetails.moveOther.high = OtherMoveOnCheck.high;
                     checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
                 }
@@ -504,6 +511,8 @@ function globalEvent() {
         PrevClickIsKingVar1 = false;
         if (tempBool && localName == 'img') {
             const square = searchInGameState(clickSquareId);
+            if (square.piece.pieceName[0] == action.prevColor[0]) return;
+
             switch (square.piece.pieceName) {
                 case 'whitePawn':
                     checkDetails.on2Xcheck || whitePawnClick(square); break;
@@ -539,5 +548,5 @@ function globalEvent() {
 }
 
 export {
-    globalEvent, searchInGameState, kingClickHelper
+    globalEvent, searchInGameState, kingClickHelper, searchInKingImm
 }

@@ -128,7 +128,14 @@ function RemCapturableSqRender(sqrId) {
     captSquare.classList.contains(classs) && captSquare.classList.remove(classs);
 }
 
+function endGame(color) {
+    // BOARD.style.display = 'none';
+    // document.querySelector("#result").style.display = 'block';
+    // document.querySelector("#winner").innerText = color;
+    console.log("Winner : " + color);
+}
 
 export {
-    initGameRender, highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender, RemCapturableSqRender, selectedSqRender, remSelectedSqRender
+    initGameRender, highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender, RemCapturableSqRender,
+    selectedSqRender, remSelectedSqRender, endGame
 }
