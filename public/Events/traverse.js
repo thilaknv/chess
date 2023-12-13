@@ -526,6 +526,7 @@ function removable(color2) {
     const direction = searchInKingImm(color2, id);
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
+    console.log(direction);
     switch (direction) {
         case 'left': if (checksFromLeft(row, col - 1, opposite[color2])) return false;
         case 'right': if (checksFromRight(row, col + 1, opposite[color2])) return false;
@@ -558,6 +559,7 @@ function isPossibleToDefendCheckHelper(id, color2, depth) {
 }
 
 function isPossibleToDefendCheck(color2, OtherMoveOnCheck) {
+    console.log(OtherMoveOnCheck);
     for (let id of OtherMoveOnCheck.high) {
         if (isPossibleToDefendCheckHelper(id, color2, 1)) return true;
     }

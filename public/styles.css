@@ -2,17 +2,19 @@
     --board-length: 80vh;
     --white: #e9edcc;
     --black: #779954;
+    --color: #e9edcc;
+    --background-color: rgb(36, 36, 36);
 }
 
 * {
     box-sizing: border-box;
     margin: 0px;
-    color: var(--white);
+    color: var(--color);
     font-family: monospace;
 }
 
 body {
-    background-color: rgb(36, 36, 36);
+    background-color: var(--background-color);
     height: 100vh;
     display: flex;
     align-items: center;
@@ -34,13 +36,15 @@ body {
 }
 
 .piece {
+    /* position: absolute; */
     width: 100%;
     cursor: pointer;
-    transition: 100ms;
+    transition: 200ms;
 }
 
 .black,
 .white {
+    /* position: relative; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,6 +77,7 @@ body {
 }
 
 .highSpan {
+    /* position: absolute; */
     display: none;
     height: 40%;
     width: 40%;
@@ -82,8 +87,25 @@ body {
 
 #result {
     display: none;
+    top: 50px;
+    bottom: 50px;
+    left: 50px;
+    right: 50px;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-direction: column;
+    width: 80%;
+    max-width: 250px;
+    height: 150px;
+    border: 2px solid var(--color);
+    border-radius: 10px;
 }
 
+button {
+    background-color: var(--background-color);
+    padding: 10px;
+}
 
 @media(max-width : 80vh) {
     :root {

@@ -87,7 +87,7 @@ function renderSquares(srcSquare, destSquare) {
             destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
         }
         destSquareEl.appendChild(pieceEl);
-    }, 100);
+    }, 200);
 }
 
 function selectedSqRender({ id, color }) {
@@ -129,8 +129,8 @@ function RemCapturableSqRender(sqrId) {
 }
 
 function endGame(color) {
-    BOARD.style.display = 'none';
-    document.querySelector("#result").style.display = 'block';
+    BOARD.style.filter = 'blur(2px)';
+    document.querySelector("#result").style.display = 'fixed';
     document.querySelector("#winner").innerText = color;
     console.log("Winner : " + color);
 }

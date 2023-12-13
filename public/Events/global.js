@@ -460,6 +460,7 @@ function globalEvent() {
             }
 
             updateKingImmMove(color);
+            updateKingImmMove(opposite[color]);
 
             action.prevColor = color;
             let checkCount;
