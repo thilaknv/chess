@@ -129,9 +129,9 @@ function RemCapturableSqRender(sqrId) {
 }
 
 function endGame(color) {
-    // BOARD.style.display = 'none';
-    // document.querySelector("#result").style.display = 'block';
-    // document.querySelector("#winner").innerText = color;
+    BOARD.style.display = 'none';
+    document.querySelector("#result").style.display = 'block';
+    document.querySelector("#winner").innerText = color;
     console.log("Winner : " + color);
 }
 
