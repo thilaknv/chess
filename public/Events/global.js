@@ -3,7 +3,7 @@ import {
     highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender,
     RemCapturableSqRender, selectedSqRender, remSelectedSqRender, endGame
 } from "../Render/main.js";
-import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet } from "../Data/data.js";
+import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action, enpassantDetails } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
@@ -13,20 +13,9 @@ import {
     defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck
 } from "./traverse.js";
 
-const action = {
-    highLightSquares: [],
-    capturableSquares: [],
-    srcSquare: null,
-    destSquare: null,
-    prevMoveSquares: [],
-    prevColor: 'black'
-};
-
 
 let PrevClickIsKingVar1 = false;
 let PrevClickIsKingVar2 = true;
-
-
 
 function searchInGameState(id) {
     const col = id.charCodeAt(0) - 97;
@@ -139,6 +128,21 @@ function whitePawnClick(square) {
             }
         }
     }
+
+    if (enpassantDetails.pawn2Xmoved && color != enpassantDetails.prevMovePieceColor) {
+        const tempId = enpassantDetails.prevMoveSqId;
+        if (rank == tempId[1] && col != 'a' && tempId[0] == alpha[col.charCodeAt(0) - 98]) {
+            enpassantDetails.canDoEnpassant = true;
+            enpassantDetails.goto = `${tempId[0]}${Number(rank) + 1}`
+            action.capturableSquares.push(enpassantDetails.goto);
+        }
+        else if (rank == tempId[1] && col != 'h' && tempId[0] == alpha[col.charCodeAt(0) - 96]) {
+            enpassantDetails.canDoEnpassant = true;
+            enpassantDetails.goto = `${tempId[0]}${Number(rank) + 1}`
+            action.capturableSquares.push(enpassantDetails.goto);
+        }
+    }
+
     let direction;
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
@@ -179,6 +183,19 @@ function blackPawnClick(square) {
             if (destPiece.pieceName[0] != square.piece.pieceName[0]) {
                 action.capturableSquares.push(destinId);
             }
+        }
+    }
+    if (enpassantDetails.pawn2Xmoved && color != enpassantDetails.prevMovePieceColor) {
+        const tempId = enpassantDetails.prevMoveSqId;
+        if (rank == tempId[1] && col != 'a' && tempId[0] == alpha[col.charCodeAt(0) - 98]) {
+            enpassantDetails.canDoEnpassant = true;
+            enpassantDetails.goto = `${tempId[0]}${Number(rank) - 1}`
+            action.capturableSquares.push(enpassantDetails.goto);
+        }
+        else if (rank == tempId[1] && col != 'h' && tempId[0] == alpha[col.charCodeAt(0) - 96]) {
+            enpassantDetails.canDoEnpassant = true;
+            enpassantDetails.goto = `${tempId[0]}${Number(rank) - 1}`
+            action.capturableSquares.push(enpassantDetails.goto);
         }
     }
     let direction;
@@ -420,12 +437,18 @@ function globalEvent() {
         if (action.highLightSquares.includes(clickSquareId) || action.capturableSquares.includes(clickSquareId)) {
 
             PrevClickIsKingVar2 = true;
+            enpassantDetails.pawn2Xmoved = false;
+            tempBool = false;
 
             const movingPiece = action.srcSquare.piece;
             const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
 
-            tempBool = false;
+            if (movingPiece.pieceName.includes('Pawn') && Math.abs(Number(action.srcSquare.id[1]) - Number(clickSquareId[1])) == 2) {
+                enpassantDetails.pawn2Xmoved = true;
+                enpassantDetails.prevMoveSqId = clickSquareId;
+                enpassantDetails.prevMovePieceColor = color;
+            }
 
             if (PrevClickIsKingVar1) {
                 if (clickSquareId[0] == 'h')
@@ -434,7 +457,13 @@ function globalEvent() {
                     clickSquareId = `c${color == 'black' ? 8 : 1}`;
             }
 
+            if (enpassantDetails.canDoEnpassant) {
+                if (clickSquareId != enpassantDetails.goto) {
+                    enpassantDetails.canDoEnpassant = false;
+                }
+            }
             movementHelper(clickSquareId, movingPiece);
+            enpassantDetails.canDoEnpassant = false;
 
             if (PrevClickIsKingVar1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
                 PrevClickIsKingVar2 = false;

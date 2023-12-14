@@ -1,5 +1,5 @@
 import * as piece from "../Data/pieces.js"
-import { BOARD, kingSquare } from "../Data/data.js";
+import { BOARD, kingSquare, enpassantDetails } from "../Data/data.js";
 import { addAnimation, removeAnimation } from "../Events/animation.js";
 import { gameState } from "../app.js";
 
@@ -74,7 +74,13 @@ function renderSquares(srcSquare, destSquare) {
     const pieceEl = document.querySelector(`#${srcSquare.id} img`);
     const unit = BOARD.offsetHeight / 8;
     addAnimation(pieceEl, srcSquare.id, destSquare.id, unit);
-
+    if (enpassantDetails.canDoEnpassant) {
+        const tempImg = document.querySelector(`#${enpassantDetails.prevMoveSqId} img`);
+        const row = 8 - Number(enpassantDetails.prevMoveSqId[1]);
+        const col = enpassantDetails.prevMoveSqId.charCodeAt(0) - 97;
+        gameState[row][col].piece = null;
+        document.getElementById(enpassantDetails.prevMoveSqId).removeChild(tempImg);
+    }
     setTimeout(() => {
         removeAnimation(pieceEl);
         const destSquareEl = document.getElementById(destSquare.id);
@@ -87,7 +93,7 @@ function renderSquares(srcSquare, destSquare) {
             destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
         }
         destSquareEl.appendChild(pieceEl);
-    }, 200);
+    }, 220);
 }
 
 function selectedSqRender({ id, color }) {
@@ -117,22 +123,26 @@ function remHighLightSqRender(sqrId) {
 }
 
 function capturableSqRender(sqrId) {
+    const highSpan = document.querySelector("#" + sqrId + " span");
+    const tempImg = document.querySelector("#" + sqrId + " img");
     const captSquare = document.getElementById(sqrId);
-    const classs = `capturable${(sqrId.charCodeAt(0) + sqrId.charCodeAt(1)) % 2 == 1 ? 'white' : 'black'}`;
-    captSquare.classList.contains(classs) || captSquare.classList.add(classs);
+    captSquare.style.cursor = "pointer";
+    highSpan.style.display = "block";
+    highSpan.classList.contains("capture") || highSpan.classList.add("capture");
 }
 
 function RemCapturableSqRender(sqrId) {
+    const highSpan = document.querySelector("#" + sqrId + " span");
     const captSquare = document.getElementById(sqrId);
-    const classs = `capturable${(sqrId.charCodeAt(0) + sqrId.charCodeAt(1)) % 2 == 1 ? 'white' : 'black'}`;
-    captSquare.classList.contains(classs) && captSquare.classList.remove(classs);
+    captSquare.style.cursor = "auto";
+    highSpan.style.display = "none";
+    highSpan.classList.contains("capture") && highSpan.classList.remove("capture");
 }
 
 function endGame(color) {
-    BOARD.style.filter = 'blur(2px)';
-    document.querySelector("#result").style.display = 'fixed';
+    BOARD.style.filter = 'blur(1.5px)';
+    document.querySelector("#result").style.display = 'flex';
     document.querySelector("#winner").innerText = color;
-    console.log("Winner : " + color);
 }
 
 export {

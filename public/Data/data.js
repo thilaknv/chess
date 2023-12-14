@@ -4,6 +4,23 @@ const themeSet = [
 ]
 let themeCode = 0;
 
+const enpassantDetails = {
+    pawn2Xmoved: false,
+    prevMoveSqId: null,
+    prevMovePieceColor: null,
+    canDoEnpassant: null,
+    goto:null
+}
+
+const action = {
+    highLightSquares: [],
+    capturableSquares: [],
+    srcSquare: null,
+    destSquare: null,
+    prevMoveSquares: [],
+    prevColor: 'black'
+};
+
 const opposite = {
     black: 'white',
     white: 'black'
@@ -90,7 +107,8 @@ function initGame() {
 }
 
 export {
-    alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet
+    alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action,
+    enpassantDetails
 }
 
 export {
