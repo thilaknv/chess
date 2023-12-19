@@ -508,7 +508,6 @@ function globalEvent() {
                     checkDetails.on2Xcheck = true;
                     if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
                         endGame(color);
-                        return;
                     }
                 }
 
@@ -517,7 +516,6 @@ function globalEvent() {
                     if (!isPossibleToDefendCheck(color2, OtherMoveOnCheck)) {
                         if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
                             endGame(color);
-                            return;
                         }
                     }
                     checkDetails.moveOther.high = OtherMoveOnCheck.high;

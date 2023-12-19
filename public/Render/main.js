@@ -140,9 +140,11 @@ function RemCapturableSqRender(sqrId) {
 }
 
 function endGame(color) {
-    BOARD.style.filter = 'blur(1.5px)';
-    document.querySelector("#result").style.display = 'flex';
-    document.querySelector("#winner").innerText = color;
+    setInterval(() => {
+        BOARD.style.filter = 'blur(1.5px)';
+        document.querySelector("#result").style.display = 'flex';
+        document.querySelector("#winner").innerText = color;
+    }, 500);
 }
 
 export {
