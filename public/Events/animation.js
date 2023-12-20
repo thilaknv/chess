@@ -1,3 +1,4 @@
+import { myData } from "../Data/data.js";
 
 
 function moveTo(srcId, dstId) {
@@ -9,6 +10,9 @@ function moveTo(srcId, dstId) {
 
 function addAnimation(piece, srcId, dstId, unit) {
     const moveToObj = moveTo(srcId, dstId);
+    if (myData.color == 'black') {
+        moveToObj.y = -moveToObj.y;
+    }
     piece.style.transform = `translate(${unit * moveToObj.x}px, ${unit * moveToObj.y}px)`;
     piece.style.zIndex = '2';
 

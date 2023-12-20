@@ -4,12 +4,16 @@ const themeSet = [
 ]
 let themeCode = 0;
 
+const myData = {
+    color: null
+}
+
 const enpassantDetails = {
     pawn2Xmoved: false,
     prevMoveSqId: null,
     prevMovePieceColor: null,
     canDoEnpassant: null,
-    goto:null
+    goto: null
 }
 
 const action = {
@@ -108,7 +112,7 @@ function initGame() {
 
 export {
     alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action,
-    enpassantDetails
+    enpassantDetails, myData
 }
 
 export {
