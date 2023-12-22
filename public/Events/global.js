@@ -92,7 +92,6 @@ function updateKingImmMove(color) {
 
 }
 
-
 function whitePawnClick(square) {
     selectedSqRender(square);
     const piece = square.piece;

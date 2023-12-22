@@ -99,7 +99,6 @@ function right(highLightSquares, capturableSquares, i, j, type) {
 }
 
 
-
 function addCheckDetails(row, col) {
     checkDetails.checker.row = row;
     checkDetails.checker.col = col;
@@ -542,6 +541,27 @@ function removable(color2) {
     }
 }
 
+function pawnCanDefend(row, col, color2, depth) {
+    if (depth > 1) return;
+
+    let sign = -1;
+    if (color2 == 'black') {
+        sign = 1;
+    }
+
+    const piece = gameState[row][col].piece;
+
+    if (!piece) pawnCanDefend(row + sign, col, color2, depth + 1);
+
+    if (piece.pieceName == `${color2}Pawn`) {
+        if (depth == 1) {
+            return (color2 == 'black' && row == 1) || (color2 == 'white' && row == 6)
+        }
+        return true;
+    }
+    return false;
+}
+
 function isPossibleToDefendCheckHelper(id, color2, depth) {
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
@@ -554,6 +574,7 @@ function isPossibleToDefendCheckHelper(id, color2, depth) {
     if (checksFromTopRight(row - 1, col + 1, color2, depth) && removable(color2)) return true;
     if (checksFromBottomLeft(row + 1, col - 1, color2, depth) && removable(color2)) return true;
     if (checksFromBottomRight(row + 1, col + 1, color2, depth) && removable(color2)) return true;
+    if (pawnCanDefend(row, col, color2, 0)) return true;
     return false;
 }
 
