@@ -1,7 +1,8 @@
 import * as piece from "../Data/pieces.js"
-import { BOARD, kingSquare, enpassantDetails } from "../Data/data.js";
+import { BOARD, kingSquare, enpassantDetails, piecesList, valueOf } from "../Data/data.js";
 import { addAnimation, removeAnimation } from "../Events/animation.js";
 import { gameState } from "../app.js";
+import { removeFromPieceList } from "../Events/global.js";
 
 
 
@@ -44,6 +45,7 @@ function initGameRender(data) {
                     square.piece = piece.whiteQueen(square.id);
                 else
                     square.piece = piece.whiteKing(square.id);
+                piecesList['white'].push(square.piece);
             }
             else if (rank == 8) {
                 if (col == 'a' || col == 'h')
@@ -56,11 +58,15 @@ function initGameRender(data) {
                     square.piece = piece.blackQueen(square.id);
                 else
                     square.piece = piece.blackKing(square.id);
+                piecesList['black'].push(square.piece);
             }
-            else if (rank == 2)
+            else if (rank == 2) {
                 square.piece = piece.whitePawn(square.id);
-            else if (rank == 7)
+                piecesList['white'].push(square.piece);
+            } else if (rank == 7) {
                 square.piece = piece.blackPawn(square.id);
+                piecesList['black'].push(square.piece);
+            }
         });
         rowDiv.classList.add("rowDiv");
         BOARD.appendChild(rowDiv);
@@ -68,29 +74,49 @@ function initGameRender(data) {
     pieceRender(data);
     kingSquare.black = gameState[0][4].piece;
     kingSquare.white = gameState[7][4].piece;
+    sortPieces();
+}
+
+function sortPieces() {
+    piecesList['black'].sort((a, b) => {
+        a = a.pieceName.substring(5);
+        b = b.pieceName.substring(5);
+        return valueOf[b] - valueOf[a];
+    });
+    piecesList['white'].sort((a, b) => {
+        a = a.pieceName.substring(5);
+        b = b.pieceName.substring(5);
+        return valueOf[b] - valueOf[a];
+    });
 }
 
 function renderSquares(srcSquare, destSquare) {
     const pieceEl = document.querySelector(`#${srcSquare.id} img`);
     const unit = BOARD.offsetHeight / 8;
+    const destSquareEl = document.getElementById(destSquare.id);
+    const childern = destSquareEl.childNodes;
+    let pawnProm = false;
     addAnimation(pieceEl, srcSquare.id, destSquare.id, unit);
     if (enpassantDetails.canDoEnpassant) {
         const tempImg = document.querySelector(`#${enpassantDetails.prevMoveSqId} img`);
         const row = 8 - Number(enpassantDetails.prevMoveSqId[1]);
         const col = enpassantDetails.prevMoveSqId.charCodeAt(0) - 97;
-        gameState[row][col].piece = null;
+        removeFromPieceList(gameState[row][col].piece.pieceName.includes('black') ? 'black' : 'white', enpassantDetails.prevMoveSqId);
+        gameState[row][col].piece = undefined;
         document.getElementById(enpassantDetails.prevMoveSqId).removeChild(tempImg);
+    }
+    if (pieceEl.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
+        pawnProm = "queen";
+        destSquare.piece.pieceName = destSquare.piece.pieceName.replace("Pawn", pawnProm[0].toUpperCase() + pawnProm.slice(1));
+        destSquare.piece.src = destSquare.piece.src.replace("pawn", pawnProm);
     }
     setTimeout(() => {
         removeAnimation(pieceEl);
-        const destSquareEl = document.getElementById(destSquare.id);
-        const childern = destSquareEl.childNodes;
-        if (childern.length == 2)
+        if (childern.length == 2) {
             destSquareEl.removeChild(childern[1]);
-        if (pieceEl.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
-            pieceEl.src = pieceEl.src.replace("pawn", "queen");
-            destSquare.piece.pieceName = destSquare.piece.pieceName.replace("Pawn", "Queen");
-            destSquare.piece.src = destSquare.piece.src.replace("pawn", "queen");
+        }
+        if (pawnProm) {
+            pieceEl.src = pieceEl.src.replace("pawn", pawnProm);
         }
         destSquareEl.appendChild(pieceEl);
     }, 220);
@@ -140,10 +166,15 @@ function RemCapturableSqRender(sqrId) {
 }
 
 function endGame(color) {
-    setInterval(() => {
+    setTimeout(() => {
         BOARD.style.filter = 'blur(1.5px)';
         document.querySelector("#result").style.display = 'flex';
-        document.querySelector("#winner").innerText = color;
+        if (color[0] == 'D')
+            document.querySelector("#winner").innerText = color;
+        else
+            document.querySelector("#winner").innerText = color + " won the game";
+        console.log(gameState);
+        console.log(piecesList);
     }, 500);
 }
 

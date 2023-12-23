@@ -3,14 +3,14 @@ import {
     highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender,
     RemCapturableSqRender, selectedSqRender, remSelectedSqRender, endGame
 } from "../Render/main.js";
-import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action, enpassantDetails } from "../Data/data.js";
+import { alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action, enpassantDetails, piecesList, staleMate } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
     findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
-    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck
+    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck, isStaleMate
 } from "./traverse.js";
 
 
@@ -34,9 +34,19 @@ function searchInKingImm(color, id) {
     if (kingImmediateSet[color].bottomright == id) return 'bottomright';
 }
 
-function filterHelperOther() {
+function filterHelperOther(temp) {
     action.highLightSquares = action.highLightSquares.filter(id => checkDetails.moveOther.high.includes(id));
+    let tempId = null;
+    if (temp && enpassantDetails.canDoEnpassant) {
+        if (action.capturableSquares.length && checkDetails.moveOther.capt.length) {
+            action.capturableSquares.forEach(id => {
+                if (id[0] == checkDetails.moveOther.capt[0][0])
+                    tempId = id;
+            });
+        }
+    }
     action.capturableSquares = action.capturableSquares.filter(id => checkDetails.moveOther.capt.includes(id));
+    if (tempId) action.capturableSquares.push(tempId);
     return true;
 }
 
@@ -45,16 +55,16 @@ function filterKingImmMoveHelper1(char) {
     action.capturableSquares = action.capturableSquares.filter(id => id.includes(char));
 }
 
-function filterKingImmMoveHelper2(Row, Col) {
+function filterKingImmMoveHelper2(Row, Col, slope) {
     action.highLightSquares = action.highLightSquares.filter(id => {
         const row = 8 - Number(id[1]);
         const col = id.charCodeAt(0) - 97;
-        return Row - row == Col - col;
+        return Row - row == slope * (Col - col);
     });
     action.capturableSquares = action.capturableSquares.filter(id => {
         const row = 8 - Number(id[1]);
         const col = id.charCodeAt(0) - 97;
-        return Row - row == Col - col;
+        return Row - row == slope * (Col - col);
     });
 }
 
@@ -68,11 +78,11 @@ function filterKingImmMove(direction, id, color) {
         case 'top': checksFromTop(row - 1, col, color) && filterKingImmMoveHelper1(id[0]); break;
         case 'bottom': checksFromBottom(row + 1, col, color) && filterKingImmMoveHelper1(id[0]); break;
 
-        case 'topright': checksFromTopRight(row - 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
-        case 'bottomleft': checksFromBottomLeft(row + 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
+        case 'topright': checksFromTopRight(row - 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col, -1); break;
+        case 'bottomleft': checksFromBottomLeft(row + 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col, -1); break;
 
-        case 'topleft': checksFromTopLeft(row - 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
-        case 'bottomright': checksFromBottomRight(row + 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col); break;
+        case 'topleft': checksFromTopLeft(row - 1, col - 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col, 1); break;
+        case 'bottomright': checksFromBottomRight(row + 1, col + 1, color, 1) && filterKingImmMoveHelper2(checkDetails.checker.row, checkDetails.checker.col, 1); break;
     }
 }
 
@@ -93,7 +103,7 @@ function updateKingImmMove(color) {
 }
 
 function whitePawnClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     const piece = square.piece;
     const currentPosition = piece.currentPosition;
     const rank = currentPosition[1];
@@ -146,11 +156,11 @@ function whitePawnClick(square) {
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
     }
-    checkDetails.oncheck && filterHelperOther();
+    checkDetails.oncheck && filterHelperOther(true);
 }
 
 function blackPawnClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     const piece = square.piece;
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const currentPosition = piece.currentPosition;
@@ -201,11 +211,11 @@ function blackPawnClick(square) {
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
     }
-    checkDetails.oncheck && filterHelperOther();
+    checkDetails.oncheck && filterHelperOther(true);
 }
 
 function knightClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
@@ -249,18 +259,17 @@ function knightClick(square) {
 }
 
 function bishopClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
-    const currentPosition = piece.currentPosition;
-    const rank = Number(currentPosition[1]);
-    const col = currentPosition.charCodeAt(0) - 96;
+    const rank = Number(square.id[1]);
+    const col = square.id.charCodeAt(0);
 
-    topLeft(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    topLeft(action.highLightSquares, action.capturableSquares, 7 - rank, col - 98, piece.pieceName[0]);
+    topRight(action.highLightSquares, action.capturableSquares, 7 - rank, col - 96, piece.pieceName[0]);
+    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - rank, col - 98, piece.pieceName[0]);
+    bottomRight(action.highLightSquares, action.capturableSquares, 9 - rank, col - 96, piece.pieceName[0]);
     let direction;
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
@@ -269,18 +278,17 @@ function bishopClick(square) {
 }
 
 function rookClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
-    const currentPosition = piece.currentPosition;
-    const rank = Number(currentPosition[1]);
-    const col = currentPosition.charCodeAt(0) - 96;
+    const rank = Number(square.id[1]);
+    const col = square.id.charCodeAt(0);
 
-    top(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
-    bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
-    left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    top(action.highLightSquares, action.capturableSquares, 7 - rank, col - 97, piece.pieceName[0]);
+    bottom(action.highLightSquares, action.capturableSquares, 9 - rank, col - 97, piece.pieceName[0]);
+    left(action.highLightSquares, action.capturableSquares, 8 - rank, col - 98, piece.pieceName[0]);
+    right(action.highLightSquares, action.capturableSquares, 8 - rank, col - 96, piece.pieceName[0]);
     let direction;
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
@@ -289,27 +297,27 @@ function rookClick(square) {
 }
 
 function queenClick(square) {
-    selectedSqRender(square);
+    staleMate.staleCheck || selectedSqRender(square);
     action.srcSquare = square;
     const piece = square.piece;
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
-    const currentPosition = piece.currentPosition;
-    const rank = Number(currentPosition[1]);
-    const col = currentPosition.charCodeAt(0) - 96;
+    const rank = Number(square.id[1]);
+    const col = square.id.charCodeAt(0);
 
-    topLeft(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    topRight(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    bottomRight(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
-    top(action.highLightSquares, action.capturableSquares, 7 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
-    bottom(action.highLightSquares, action.capturableSquares, 9 - Number(square.id[1]), square.id.charCodeAt(0) - 97, piece.pieceName[0]);
-    left(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 98, piece.pieceName[0]);
-    right(action.highLightSquares, action.capturableSquares, 8 - Number(square.id[1]), square.id.charCodeAt(0) - 96, piece.pieceName[0]);
+    topLeft(action.highLightSquares, action.capturableSquares, 7 - rank, col - 98, piece.pieceName[0]);
+    topRight(action.highLightSquares, action.capturableSquares, 7 - rank, col - 96, piece.pieceName[0]);
+    bottomLeft(action.highLightSquares, action.capturableSquares, 9 - rank, col - 98, piece.pieceName[0]);
+    bottomRight(action.highLightSquares, action.capturableSquares, 9 - rank, col - 96, piece.pieceName[0]);
+    top(action.highLightSquares, action.capturableSquares, 7 - rank, col - 97, piece.pieceName[0]);
+    bottom(action.highLightSquares, action.capturableSquares, 9 - rank, col - 97, piece.pieceName[0]);
+    left(action.highLightSquares, action.capturableSquares, 8 - rank, col - 98, piece.pieceName[0]);
+    right(action.highLightSquares, action.capturableSquares, 8 - rank, col - 96, piece.pieceName[0]);
     let direction;
     if ((direction = searchInKingImm(color, square.id))) {
         filterKingImmMove(direction, square.id, opposite[color]);
     }
     checkDetails.oncheck && filterHelperOther();
+    return true;
 }
 
 function kingClickHelper(rank, col, color) {
@@ -356,7 +364,7 @@ function kingClick(square, color) {
 
 
     if (canCastle[color].status) {
-        castlingHelper(color);
+        checkDetails.oncheck || castlingHelper(color);
     }
 }
 
@@ -402,10 +410,22 @@ function checkForKing(color) {
     return checks;
 }
 
-function movementHelper(clickSquareId, movingPiece) {
+function removeFromPieceList(color, posId) {
+    let i = 0;
+    for (let piece of piecesList[color]) {
+        if (piece.currentPosition == posId) {
+            piecesList[color].splice(i, 1);
+            return;
+        } i++;
+    }
+}
 
+function movementHelper(clickSquareId, movingPiece, color) {
     action.destSquare = searchInGameState(clickSquareId);
     movingPiece.currentPosition = clickSquareId;
+    if (action.destSquare.piece) {
+        removeFromPieceList(opposite[color], action.destSquare.piece.currentPosition);
+    }
     action.destSquare.piece = movingPiece;
     action.srcSquare.piece = undefined;
 
@@ -429,7 +449,10 @@ function globalEvent() {
 
     BOARD.addEventListener("click", (event) => {
 
+        if (event.target.id == 'board') return;
+
         const localName = event.target.localName;
+
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
         let tempBool = true;
 
@@ -461,7 +484,7 @@ function globalEvent() {
                     enpassantDetails.canDoEnpassant = false;
                 }
             }
-            movementHelper(clickSquareId, movingPiece);
+            movementHelper(clickSquareId, movingPiece, color);
             enpassantDetails.canDoEnpassant = false;
 
             if (PrevClickIsKingVar1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
@@ -470,7 +493,7 @@ function globalEvent() {
                 let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
                 action.srcSquare = searchInGameState(tempId);
                 const movingPiece2 = action.srcSquare.piece;
-                movementHelper(clickSquareId2, movingPiece2);
+                movementHelper(clickSquareId2, movingPiece2, color);
             }
 
             if (canCastle[color].status) {
@@ -520,6 +543,16 @@ function globalEvent() {
                     checkDetails.moveOther.high = OtherMoveOnCheck.high;
                     checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
                 }
+            } else {
+                const temphigh = action.highLightSquares;
+                const tempcapt = action.capturableSquares;
+                const tempsrc = action.srcSquare;
+                action.highLightSquares = [];
+                action.capturableSquares = [];
+                isStaleMate(opposite[color]) && endGame("Draw");
+                action.highLightSquares = temphigh;
+                action.capturableSquares = tempcapt;
+                action.srcSquare = tempsrc;
             }
         }
 
@@ -575,5 +608,6 @@ function globalEvent() {
 }
 
 export {
-    globalEvent, searchInGameState, kingClickHelper, searchInKingImm
+    globalEvent, searchInGameState, kingClickHelper, searchInKingImm, removeFromPieceList, queenClick, rookClick, bishopClick, knightClick,
+    whitePawnClick, blackPawnClick
 }

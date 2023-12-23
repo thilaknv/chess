@@ -4,6 +4,25 @@ const themeSet = [
 ]
 let themeCode = 0;
 
+const staleMate = {
+    // important
+    staleCheck: false
+}
+
+const valueOf = {
+    King: 5,
+    Queen: 4,
+    Rook: 3,
+    Knight: 2,
+    Bishop: 1,
+    Pawn: 0
+}
+
+const piecesList = {
+    black: [],
+    white: []
+}
+
 const myData = {
     color: null
 }
@@ -112,7 +131,7 @@ function initGame() {
 
 export {
     alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action,
-    enpassantDetails, myData
+    enpassantDetails, myData, piecesList, valueOf, staleMate
 }
 
 export {

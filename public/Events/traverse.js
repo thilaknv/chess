@@ -1,6 +1,7 @@
 import { gameState } from "../app.js";
-import { alpha, BOARD, checkDetails, kingSquare, opposite } from "../Data/data.js";
-import { kingClickHelper, searchInGameState, searchInKingImm } from "./global.js";
+import { action, alpha, BOARD, checkDetails, kingSquare, opposite, piecesList, staleMate } from "../Data/data.js";
+import { bishopClick, blackPawnClick, kingClickHelper, knightClick, queenClick, rookClick, searchInGameState, searchInKingImm, whitePawnClick } from "./global.js";
+
 
 function topLeft(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j < 0) return;
@@ -11,6 +12,7 @@ function topLeft(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     topLeft(highLightSquares, capturableSquares, i - 1, j - 1, type);
 }
 
@@ -23,6 +25,7 @@ function topRight(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     topRight(highLightSquares, capturableSquares, i - 1, j + 1, type);
 }
 
@@ -35,6 +38,7 @@ function bottomLeft(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     bottomLeft(highLightSquares, capturableSquares, i + 1, j - 1, type);
 }
 
@@ -47,6 +51,7 @@ function bottomRight(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     bottomRight(highLightSquares, capturableSquares, i + 1, j + 1, type);
 }
 
@@ -59,6 +64,7 @@ function top(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     top(highLightSquares, capturableSquares, i - 1, j, type);
 }
 
@@ -71,6 +77,7 @@ function bottom(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     bottom(highLightSquares, capturableSquares, i + 1, j, type);
 }
 
@@ -83,6 +90,7 @@ function left(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     left(highLightSquares, capturableSquares, i, j - 1, type);
 }
 
@@ -95,6 +103,7 @@ function right(highLightSquares, capturableSquares, i, j, type) {
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
+    if (staleMate.staleCheck) return;
     right(highLightSquares, capturableSquares, i, j + 1, type);
 }
 
@@ -537,27 +546,44 @@ function removable(color2) {
 
         case 'topleft': if (checksFromTopLeft(row - 1, col - 1, opposite[color2])) return false;
         case 'bottomright': if (checksFromBottomRight(row + 1, col + 1, opposite[color2])) return false;
-        default: return true;
     }
+    return true;
 }
 
 function pawnCanDefend(row, col, color2, depth) {
-    if (depth > 1) return;
+    if (row < 0 || row > 7 || depth > 1) return false;
 
-    let sign = -1;
+    let sign = 1;
     if (color2 == 'black') {
-        sign = 1;
+        sign = -1;
     }
 
     const piece = gameState[row][col].piece;
 
-    if (!piece) pawnCanDefend(row + sign, col, color2, depth + 1);
+    if (!piece) return pawnCanDefend(row + sign, col, color2, depth + 1);
 
-    if (piece.pieceName == `${color2}Pawn`) {
+    addCheckDetails(row, col);
+
+    if (piece.pieceName.includes(`${color2}Pawn`)) {
         if (depth == 1) {
-            return (color2 == 'black' && row == 1) || (color2 == 'white' && row == 6)
+            return (color2 == 'black' && row == 1) || (color2 == 'white' && row == 6);
         }
         return true;
+    }
+    return false;
+}
+
+function pawnCanDefendEnpassant(row, col, color2) {
+    let piece;
+    if (col != 0) {
+        piece = gameState[row][col - 1].piece;
+        addCheckDetails(row, col - 1);
+        if (piece && piece.pieceName == `${color2}Pawn`) return true;
+    }
+    if (col != 7) {
+        piece = gameState[row][col + 1].piece;
+        addCheckDetails(row, col + 1);
+        if (piece && piece.pieceName == `${color2}Pawn`) return true;
     }
     return false;
 }
@@ -574,7 +600,14 @@ function isPossibleToDefendCheckHelper(id, color2, depth) {
     if (checksFromTopRight(row - 1, col + 1, color2, depth) && removable(color2)) return true;
     if (checksFromBottomLeft(row + 1, col - 1, color2, depth) && removable(color2)) return true;
     if (checksFromBottomRight(row + 1, col + 1, color2, depth) && removable(color2)) return true;
-    if (pawnCanDefend(row, col, color2, 0)) return true;
+    if (pawnCanDefend(row, col, color2, 0) && removable(color2)) return true;
+    if (!depth) {
+        if (gameState[row][col].piece.pieceName.includes('Pawn')) {
+            if (color2 == 'white' && row != 3) return false;
+            if (color2 == 'black' && row != 4) return false;
+            return pawnCanDefendEnpassant(row, col, color2) && removable(color2);
+        }
+    }
     return false;
 }
 
@@ -588,11 +621,62 @@ function isPossibleToDefendCheck(color2, OtherMoveOnCheck) {
     return false;
 }
 
+function moveableKing(color) {
+    const kingsMoveOnCheck = findKingsMoveOnCheck(color);
+    return kingsMoveOnCheck.high.length != 0 || kingsMoveOnCheck.capt.length != 0;
+}
+
+function moveableQueen(square) {
+    queenClick(square);
+    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+}
+
+function moveableBishop(square) {
+    bishopClick(square);
+    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+}
+
+function moveableKnight(square) {
+    knightClick(square);
+    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+}
+
+function moveableRook(square) {
+    rookClick(square);
+    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+}
+
+function moveablePawn(square, color) {
+    if (color[0] == 'b') blackPawnClick(square);
+    else whitePawnClick(square);
+    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+}
+
+function isStaleMate(color) {
+    staleMate.staleCheck = true;
+    let result = false;
+    for (let piece of piecesList[color]) {
+        const type = piece.pieceName.slice(5);
+        const square = searchInGameState(piece.currentPosition);
+        switch (type) {
+            case 'King': result = moveableKing(color); break;
+            case 'Queen': result = moveableQueen(square); break;
+            case 'Rook': result = moveableRook(square); break;
+            case 'Bishop': result = moveableBishop(square); break;
+            case 'Knight': result = moveableKnight(square); break;
+            case 'Pawn': result = moveablePawn(square, color); break;
+        }
+        if (result) break;
+    }
+    staleMate.staleCheck = false;
+    return !result;
+}
+
 export {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight, checksFromKnight,
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
     findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
-    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck
+    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck, isStaleMate
 }
