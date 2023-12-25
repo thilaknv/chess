@@ -94,6 +94,9 @@ const kingImmediateSet = {
     }
 }
 
+let PrevClickIsKingVar1 = false;
+let PrevClickIsKingVar2 = true;
+
 const canCastle = {
     black: {
         status: true,
@@ -131,7 +134,7 @@ function initGame() {
 
 export {
     alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action,
-    enpassantDetails, myData, piecesList, valueOf, staleMate
+    enpassantDetails, myData, piecesList, valueOf, staleMate, PrevClickIsKingVar1, PrevClickIsKingVar2
 }
 
 export {

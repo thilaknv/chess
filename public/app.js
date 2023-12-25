@@ -6,6 +6,11 @@ const gameState = initGame();
 initGameRender(gameState);
 globalEvent();
 
+
+function start(){
+
+}
+
 export {
     gameState
 };

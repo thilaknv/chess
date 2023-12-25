@@ -111,10 +111,12 @@ function renderSquares(srcSquare, destSquare) {
         destSquare.piece.src = destSquare.piece.src.replace("pawn", pawnProm);
     }
     setTimeout(() => {
-        removeAnimation(pieceEl);
         if (childern.length == 2) {
             destSquareEl.removeChild(childern[1]);
         }
+    }, 0);
+    setTimeout(() => {
+        removeAnimation(pieceEl);
         if (pawnProm) {
             pieceEl.src = pieceEl.src.replace("pawn", pawnProm);
         }

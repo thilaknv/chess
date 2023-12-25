@@ -652,6 +652,34 @@ function moveablePawn(square, color) {
     return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
 }
 
+function checkMate(color, checkCount) {
+    checkDetails.oncheck = true;
+    const cRow = checkDetails.checker.row;
+    const cCol = checkDetails.checker.col;
+    const color2 = opposite[color];
+    const kingsMoveOnCheck = findKingsMoveOnCheck(color2);
+    checkDetails.moveKing.high = kingsMoveOnCheck.high;
+    checkDetails.moveKing.capt = kingsMoveOnCheck.capt;
+
+    if (checkCount > 1) {
+        checkDetails.on2Xcheck = true;
+        if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
+            endGame(color);
+        }
+    }
+
+    else {
+        const OtherMoveOnCheck = findOtherMoveOnCheck(color2, cRow, cCol);
+        if (!isPossibleToDefendCheck(color2, OtherMoveOnCheck)) {
+            if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
+                endGame(color);
+            }
+        }
+        checkDetails.moveOther.high = OtherMoveOnCheck.high;
+        checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
+    }
+}
+
 function isStaleMate(color) {
     staleMate.staleCheck = true;
     let result = false;
@@ -678,5 +706,5 @@ export {
     checksFromLeft, checksFromRight, checksFromTop, checksFromTopLeft, checksFromTopRight,
     findKingsMoveOnCheck, findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft, defenderFromRight, defenderFromTop,
-    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck, isStaleMate
+    defenderFromTopLeft, defenderFromTopRight, isPossibleToDefendCheck, isStaleMate, checkMate
 }

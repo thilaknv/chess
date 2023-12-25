@@ -13,12 +13,60 @@
     <div id="result">
         <h2><span id="winner"></span></h2>
         <div>
-            <button onclick="location.reload()">home</button>
-            <button onclick="location.reload()">replay</button>
+            <button>home</button>
+            <button>replay</button>
         </div>
     </div>
+
+    <div class="game-forms">
+        <form class="create-form">
+            <input class="inputs" type="text" name="username1" id="username1" placeholder="username" required
+                minlength="5" maxlength="20">
+            <select class="selects" name="time" id="game_time">
+                <option value="5">5 min</option>
+                <option value="10">10 min</option>
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="30">30 min</option>
+            </select>
+            <select class="selects" name="color" id="my_color">
+                <option value="Random">Random Color</option>
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+            </select>
+            <button id="create">Create Room</button>
+        </form>
+        <hr>
+        <form class="join-form">
+            <input class="inputs" type="text" name="username2" id="username2" placeholder="username" required
+                minlength="5" maxlength="20">
+            <input class="inputs" type="text" name="join_room" id="join_room" placeholder="Room ID" required
+                minlength="6" maxlength="6">
+            <button id="join">Join Room</button>
+        </form>
+    </div>
+
+    <form class="room-page">
+        <div class="rp-header">
+            <h3 class="rp-header-h3">Room</h3>
+            <p>ID: <span id="shareCode">abcgdf</span></p>
+        </div>
+
+        <div class="usersList1"></div>
+
+        <button id="room_game_start">Start</button>
+    </form>
+
     <div id="board"></div>
 </body>
-<script type="module" src="app.js"></script>
+
+<!-- 
+    <script type="module" src="app.js"></script>
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
+    integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="./Render/socket.js"></script>
 
 </html>
