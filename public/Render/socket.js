@@ -1,4 +1,4 @@
-const socket = io('ws://localhost:3000');
+const socket = io('https://chezz-game-socketio-project.onrender.com');
 // const socket = io();
 
 const gameForms = document.querySelector('.game-forms');
