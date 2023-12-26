@@ -27,11 +27,6 @@ const io = new Server(expressServer, {
     }
 });
 
-const USERSTATE = {
-    users: [],
-    setUsers: newUsersArr => this.users = newUsersArr
-}
-
 const ROOMSTATE = {
     rooms: []
 }
@@ -67,18 +62,18 @@ io.on('connection', socket => {
 
         // remove from other rooms
         //------??--------
-        
+
         const room = activateRoom(matchTime, myColor);
         const user = activateUser(socket.id, host, room);
         room.P1 = user;
-        
+
         // join room
         socket.join(room.CODE);
-        
+
         // to host
         socket.emit('roomPage', room);
     });
-    
+
     socket.on('joinRoom', ({ name, joinRoomID }) => {
 
         // remove from other rooms
@@ -97,6 +92,28 @@ io.on('connection', socket => {
         socket.broadcast.to(room.CODE).emit('updateRoomPage', room);
     });
 
+    socket.on('startGameChat', P2 => {
+        const p2 = getUser(P2);
+        if (p2) {
+            io.to(p2.roomCODE).emit('openGameChatBox', p2.room);
+        }
+    });
+
+    socket.on('message', ({ text }) => {
+        const user = getUser(socket.id);
+        if (user) {
+            io.to(user.roomCODE).emit('message', buildMsg(user, text));
+        }
+    });
+
+    socket.on('sendMove', ({ from, to, promotionTo }) => {
+        const user = getUser(socket.id);
+        if (user) {
+            socket.broadcast.to(user.room).emit('recieveMove',
+                { from, to, promotionTo });
+        }
+    })
+
     socket.on('disconnect', () => {
         const UR = userLeavesRoom(socket.id);
         if (UR && UR.user) {
@@ -107,16 +124,16 @@ io.on('connection', socket => {
                 socket.broadcast.to(UR.user.roomCODE).emit('updateRoomPage', UR.room);
             }
         }
-    })
+    });
 });
 
 
 
 // important methods
 
-const buildMsg = (name, text) => {
+const buildMsg = (user, text) => {
     return {
-        name, text,
+        user, text,
         time: new Intl.DateTimeFormat('en-US', {
             timeStyle: 'short',
             timeZone: 'Asia/Kolkata'

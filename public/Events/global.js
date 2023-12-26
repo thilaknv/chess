@@ -5,8 +5,7 @@ import {
 } from "../Render/main.js";
 import {
     alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet,
-    action, enpassantDetails, piecesList, staleMate, PrevClickIsKingVar1,
-    PrevClickIsKingVar2
+    action, enpassantDetails, piecesList, staleMate, prevKing
 } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
@@ -379,7 +378,7 @@ function castlingHelper(color) {
         if (findKingsMoveOnCheckHelper(`f${rank}`, color) && findKingsMoveOnCheckHelper(`g${rank}`, color)) {
             action.highLightSquares.push(`h${rank}`);
             action.highLightSquares.push(`g${rank}`);
-            PrevClickIsKingVar1 = true;
+            prevKing.Var1 = true;
         }
     }
 
@@ -388,7 +387,7 @@ function castlingHelper(color) {
         if (findKingsMoveOnCheckHelper(`c${rank}`, color) && findKingsMoveOnCheckHelper(`d${rank}`, color)) {
             action.highLightSquares.push(`a${rank}`);
             action.highLightSquares.push(`c${rank}`);
-            PrevClickIsKingVar1 = true;
+            prevKing.Var1 = true;
         }
     }
 
@@ -446,7 +445,7 @@ function movementHelper(clickSquareId, movingPiece, color) {
     action.destSquare.piece = movingPiece;
     action.srcSquare.piece = undefined;
 
-    if (PrevClickIsKingVar2) {
+    if (prevKing.Var2) {
         while (action.prevMoveSquares.length)
             remSelectedSqRender(action.prevMoveSquares.pop());
     }
@@ -461,7 +460,7 @@ function movementHelper(clickSquareId, movingPiece, color) {
 
 function movementTo(clickSquareId) {
 
-    PrevClickIsKingVar2 = true;
+    prevKing.Var2 = true;
     enpassantDetails.pawn2Xmoved = false;
 
     const movingPiece = action.srcSquare.piece;
@@ -474,7 +473,7 @@ function movementTo(clickSquareId) {
         enpassantDetails.prevMovePieceColor = color;
     }
 
-    if (PrevClickIsKingVar1) {
+    if (prevKing.Var1) {
         if (clickSquareId[0] == 'h')
             clickSquareId = `g${color == 'black' ? 8 : 1}`;
         if (clickSquareId[0] == 'a')
@@ -489,8 +488,8 @@ function movementTo(clickSquareId) {
     movementHelper(clickSquareId, movingPiece, color);
     enpassantDetails.canDoEnpassant = false;
 
-    if (PrevClickIsKingVar1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
-        PrevClickIsKingVar2 = false;
+    if (prevKing.Var1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
+        prevKing.Var2 = false;
         let clickSquareId2 = `${clickSquareId[0] == 'g' ? 'f' : 'd'}${clickSquareId[1]}`;
         let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
         action.srcSquare = searchInGameState(tempId);
@@ -526,7 +525,7 @@ function movementTo(clickSquareId) {
     } else {
         isStaleMate(opposite[color]) && endGame("Draw");
     }
-    PrevClickIsKingVar1 = false;
+    prevKing.Var1 = false;
 }
 
 
@@ -548,7 +547,7 @@ function globalEvent() {
 
         else if (localName == 'img') {
             allHighLightRem();
-            PrevClickIsKingVar1 = false;
+            prevKing.Var1 = false;
             const square = searchInGameState(clickSquareId);
             if (square.piece.pieceName[0] == action.prevColor[0]) return;
 

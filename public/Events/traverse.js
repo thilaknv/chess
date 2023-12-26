@@ -1,5 +1,6 @@
 import { gameState } from "../app.js";
 import { action, alpha, BOARD, checkDetails, kingSquare, opposite, piecesList, staleMate } from "../Data/data.js";
+import { endGame } from "../Render/main.js";
 import { bishopClick, blackPawnClick, kingClickHelper, knightClick, queenClick, rookClick, searchInGameState, searchInKingImm, whitePawnClick } from "./global.js";
 
 

@@ -4,7 +4,7 @@ import { globalEvent } from "./Events/global.js";
 
 const gameState = initGame();
 initGameRender(gameState);
-globalEvent();
+// globalEvent();
 
 
 function start(){
