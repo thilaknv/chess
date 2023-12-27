@@ -1,122 +1,127 @@
-import { gameState } from "../app.js";
-import { action, alpha, BOARD, checkDetails, kingSquare, opposite, piecesList, staleMate } from "../Data/data.js";
+import {
+    alpha, opposite
+} from "../Data/data.js";
 import { endGame } from "../Render/main.js";
 import { bishopClick, blackPawnClick, kingClickHelper, knightClick, queenClick, rookClick, searchInGameState, searchInKingImm, whitePawnClick } from "./global.js";
+
+import { BIGDATA } from "../Render/socket.js";
+// import { BIGDATA } from "../Data/data.js";
+// gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
 
 
 function topLeft(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j < 0) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     topLeft(highLightSquares, capturableSquares, i - 1, j - 1, type);
 }
 
 function topRight(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j > 7) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     topRight(highLightSquares, capturableSquares, i - 1, j + 1, type);
 }
 
 function bottomLeft(highLightSquares, capturableSquares, i, j, type) {
     if (i > 7 || j < 0) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     bottomLeft(highLightSquares, capturableSquares, i + 1, j - 1, type);
 }
 
 function bottomRight(highLightSquares, capturableSquares, i, j, type) {
     if (i > 7 || j > 7) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     bottomRight(highLightSquares, capturableSquares, i + 1, j + 1, type);
 }
 
 function top(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     top(highLightSquares, capturableSquares, i - 1, j, type);
 }
 
 function bottom(highLightSquares, capturableSquares, i, j, type) {
     if (i > 7) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     bottom(highLightSquares, capturableSquares, i + 1, j, type);
 }
 
 function left(highLightSquares, capturableSquares, i, j, type) {
     if (j < 0) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     left(highLightSquares, capturableSquares, i, j - 1, type);
 }
 
 function right(highLightSquares, capturableSquares, i, j, type) {
     if (j > 7) return;
-    if (gameState[i][j].piece) {
-        if (type[0] != gameState[i][j].piece.pieceName[0]) {
+    if (BIGDATA.gameState[i][j].piece) {
+        if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);
         }
         return;
     }
     highLightSquares.push(`${alpha[j]}${8 - i}`);
-    if (staleMate.staleCheck) return;
+    if (BIGDATA.staleMate.staleCheck) return;
     right(highLightSquares, capturableSquares, i, j + 1, type);
 }
 
 
 function addCheckDetails(row, col) {
-    checkDetails.checker.row = row;
-    checkDetails.checker.col = col;
+    BIGDATA.checkDetails.checker.row = row;
+    BIGDATA.checkDetails.checker.col = col;
 }
 
 function checksFromTop(row, col, color) {
     if (row < 0) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -138,7 +143,7 @@ function checksFromTop(row, col, color) {
 
 function checksFromLeft(row, col, color) {
     if (col < 0) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -160,7 +165,7 @@ function checksFromLeft(row, col, color) {
 
 function checksFromRight(row, col, color) {
     if (col > 7) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -182,7 +187,7 @@ function checksFromRight(row, col, color) {
 
 function checksFromBottom(row, col, color) {
     if (row > 7) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -204,7 +209,7 @@ function checksFromBottom(row, col, color) {
 
 function checksFromTopLeft(row, col, color, depth) {
     if (row < 0 || col < 0) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -231,7 +236,7 @@ function checksFromTopLeft(row, col, color, depth) {
 
 function checksFromTopRight(row, col, color, depth) {
     if (row < 0 || col > 7) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -258,7 +263,7 @@ function checksFromTopRight(row, col, color, depth) {
 
 function checksFromBottomLeft(row, col, color, depth) {
     if (row > 7 || col < 0) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -285,7 +290,7 @@ function checksFromBottomLeft(row, col, color, depth) {
 
 function checksFromBottomRight(row, col, color, depth) {
     if (row > 7 || col > 7) return 0;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -314,7 +319,7 @@ function checksFromBottomRight(row, col, color, depth) {
 
 function defenderFromTop(row, col, color) {
     if (row < 0) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -324,12 +329,12 @@ function defenderFromTop(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromLeft(row, col, color) {
     if (col < 0) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -339,12 +344,12 @@ function defenderFromLeft(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromRight(row, col, color) {
     if (col > 7) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -354,12 +359,12 @@ function defenderFromRight(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromBottom(row, col, color) {
     if (row > 7) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -369,12 +374,12 @@ function defenderFromBottom(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromTopLeft(row, col, color) {
     if (row < 0 || col < 0) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -384,12 +389,12 @@ function defenderFromTopLeft(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromTopRight(row, col, color) {
     if (row < 0 || col > 7) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -399,12 +404,12 @@ function defenderFromTopRight(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromBottomLeft(row, col, color) {
     if (row > 7 || col < 0) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -414,12 +419,12 @@ function defenderFromBottomLeft(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 function defenderFromBottomRight(row, col, color) {
     if (row > 7 || col > 7) return null;
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
 
     if (!piece)
@@ -429,7 +434,7 @@ function defenderFromBottomRight(row, col, color) {
         return null;
     }
 
-    return gameState[row][col].id;
+    return BIGDATA.gameState[row][col].id;
 }
 
 // ------------------
@@ -439,19 +444,19 @@ function checksFromKnight(row, col, color) {
     let tempPiece, count = 0;
     let name = `${color}Knight`;
     if (row > 0) {
-        if (col > 1 && (tempPiece = gameState[row - 1][col - 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 1, col - 2);
-        if (col < 6 && (tempPiece = gameState[row - 1][col + 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 1, col + 2);
+        if (col > 1 && (tempPiece = BIGDATA.gameState[row - 1][col - 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 1, col - 2);
+        if (col < 6 && (tempPiece = BIGDATA.gameState[row - 1][col + 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 1, col + 2);
         if (row > 1) {
-            if (col > 0 && (tempPiece = gameState[row - 2][col - 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 2, col - 1);
-            if (col < 7 && (tempPiece = gameState[row - 2][col + 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 2, col + 1);
+            if (col > 0 && (tempPiece = BIGDATA.gameState[row - 2][col - 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 2, col - 1);
+            if (col < 7 && (tempPiece = BIGDATA.gameState[row - 2][col + 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row - 2, col + 1);
         }
     }
     if (row < 7) {
-        if (col > 1 && (tempPiece = gameState[row + 1][col - 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 1, col - 2);
-        if (col < 6 && (tempPiece = gameState[row + 1][col + 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 1, col + 2);
+        if (col > 1 && (tempPiece = BIGDATA.gameState[row + 1][col - 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 1, col - 2);
+        if (col < 6 && (tempPiece = BIGDATA.gameState[row + 1][col + 2].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 1, col + 2);
         if (row < 6) {
-            if (col > 0 && (tempPiece = gameState[row + 2][col - 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 2, col - 1);
-            if (col < 7 && (tempPiece = gameState[row + 2][col + 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 2, col + 1);
+            if (col > 0 && (tempPiece = BIGDATA.gameState[row + 2][col - 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 2, col - 1);
+            if (col < 7 && (tempPiece = BIGDATA.gameState[row + 2][col + 1].piece) && tempPiece.pieceName == name && (count = 1)) addCheckDetails(row + 2, col + 1);
         }
     }
     return count;
@@ -460,17 +465,17 @@ function checksFromKnight(row, col, color) {
 function checksFromKing(row, col, color) {
     const kingName = `${color}King`;
     if (row > 0) {
-        if (col > 0 && gameState[row - 1][col - 1].piece && gameState[row - 1][col - 1].piece.pieceName == kingName) return 1;
-        if (col < 7 && gameState[row - 1][col + 1].piece && gameState[row - 1][col + 1].piece.pieceName == kingName) return 1;
-        if (gameState[row - 1][col].piece && gameState[row - 1][col].piece.pieceName == kingName) return 1;
+        if (col > 0 && BIGDATA.gameState[row - 1][col - 1].piece && BIGDATA.gameState[row - 1][col - 1].piece.pieceName == kingName) return 1;
+        if (col < 7 && BIGDATA.gameState[row - 1][col + 1].piece && BIGDATA.gameState[row - 1][col + 1].piece.pieceName == kingName) return 1;
+        if (BIGDATA.gameState[row - 1][col].piece && BIGDATA.gameState[row - 1][col].piece.pieceName == kingName) return 1;
     }
     if (row < 7) {
-        if (col > 0 && gameState[row + 1][col - 1].piece && gameState[row + 1][col - 1].piece.pieceName == kingName) return 1;
-        if (col < 7 && gameState[row + 1][col + 1].piece && gameState[row + 1][col + 1].piece.pieceName == kingName) return 1;
-        if (gameState[row + 1][col].piece && gameState[row + 1][col].piece.pieceName == kingName) return 1;
+        if (col > 0 && BIGDATA.gameState[row + 1][col - 1].piece && BIGDATA.gameState[row + 1][col - 1].piece.pieceName == kingName) return 1;
+        if (col < 7 && BIGDATA.gameState[row + 1][col + 1].piece && BIGDATA.gameState[row + 1][col + 1].piece.pieceName == kingName) return 1;
+        if (BIGDATA.gameState[row + 1][col].piece && BIGDATA.gameState[row + 1][col].piece.pieceName == kingName) return 1;
     }
-    if (col > 0 && gameState[row][col - 1].piece && gameState[row][col - 1].piece.pieceName == kingName) return 1;
-    if (col < 7 && gameState[row][col + 1].piece && gameState[row][col + 1].piece.pieceName == kingName) return 1;
+    if (col > 0 && BIGDATA.gameState[row][col - 1].piece && BIGDATA.gameState[row][col - 1].piece.pieceName == kingName) return 1;
+    if (col < 7 && BIGDATA.gameState[row][col + 1].piece && BIGDATA.gameState[row][col + 1].piece.pieceName == kingName) return 1;
     return 0;
 }
 
@@ -492,7 +497,7 @@ function findKingsMoveOnCheckHelper(id, color) {
 }
 
 function findKingsMoveOnCheck(color) {
-    const kingSqr = kingSquare[color];
+    const kingSqr = BIGDATA.kingSquare[color];
     const kingRank = Number(kingSqr.currentPosition[1]);
     const kingCol = kingSqr.currentPosition.charCodeAt(0) - 97;
     let kingMoves = kingClickHelper(kingRank, kingCol, color);
@@ -513,15 +518,15 @@ function findOtherMoveOnCheckHelper(row, col, kingRow, kingCol, high) {
     if (c != 0) c = c < 0 ? 1 : -1;
 
     for (row += r, col += c; row != kingRow || col != kingCol; row += r, col += c) {
-        high.push(gameState[row][col].id);
+        high.push(BIGDATA.gameState[row][col].id);
     }
 }
 
 function findOtherMoveOnCheck(color, row, col) {
-    const kingSqr = kingSquare[color];
+    const kingSqr = BIGDATA.kingSquare[color];
     const kingRow = 8 - Number(kingSqr.currentPosition[1]);
     const kingCol = kingSqr.currentPosition.charCodeAt(0) - 97;
-    const capt = [gameState[row][col].id];
+    const capt = [BIGDATA.gameState[row][col].id];
     const high = [];
 
     if (row == kingRow || col == kingCol || Math.abs(row - kingRow) == Math.abs(col - kingCol))
@@ -531,7 +536,7 @@ function findOtherMoveOnCheck(color, row, col) {
 }
 
 function removable(color2) {
-    const id = `${alpha[checkDetails.checker.col]}${8 - checkDetails.checker.row}`;
+    const id = `${alpha[BIGDATA.checkDetails.checker.col]}${8 - BIGDATA.checkDetails.checker.row}`;
     const direction = searchInKingImm(color2, id);
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
@@ -559,7 +564,7 @@ function pawnCanDefend(row, col, color2, depth) {
         sign = -1;
     }
 
-    const piece = gameState[row][col].piece;
+    const piece = BIGDATA.gameState[row][col].piece;
 
     if (!piece) return pawnCanDefend(row + sign, col, color2, depth + 1);
 
@@ -577,12 +582,12 @@ function pawnCanDefend(row, col, color2, depth) {
 function pawnCanDefendEnpassant(row, col, color2) {
     let piece;
     if (col != 0) {
-        piece = gameState[row][col - 1].piece;
+        piece = BIGDATA.gameState[row][col - 1].piece;
         addCheckDetails(row, col - 1);
         if (piece && piece.pieceName == `${color2}Pawn`) return true;
     }
     if (col != 7) {
-        piece = gameState[row][col + 1].piece;
+        piece = BIGDATA.gameState[row][col + 1].piece;
         addCheckDetails(row, col + 1);
         if (piece && piece.pieceName == `${color2}Pawn`) return true;
     }
@@ -603,7 +608,7 @@ function isPossibleToDefendCheckHelper(id, color2, depth) {
     if (checksFromBottomRight(row + 1, col + 1, color2, depth) && removable(color2)) return true;
     if (pawnCanDefend(row, col, color2, 0) && removable(color2)) return true;
     if (!depth) {
-        if (gameState[row][col].piece.pieceName.includes('Pawn')) {
+        if (BIGDATA.gameState[row][col].piece.pieceName.includes('Pawn')) {
             if (color2 == 'white' && row != 3) return false;
             if (color2 == 'black' && row != 4) return false;
             return pawnCanDefendEnpassant(row, col, color2) && removable(color2);
@@ -629,41 +634,41 @@ function moveableKing(color) {
 
 function moveableQueen(square) {
     queenClick(square);
-    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+    return BIGDATA.action.highLightSquares.length != 0 || BIGDATA.action.capturableSquares.length != 0;
 }
 
 function moveableBishop(square) {
     bishopClick(square);
-    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+    return BIGDATA.action.highLightSquares.length != 0 || BIGDATA.action.capturableSquares.length != 0;
 }
 
 function moveableKnight(square) {
     knightClick(square);
-    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+    return BIGDATA.action.highLightSquares.length != 0 || BIGDATA.action.capturableSquares.length != 0;
 }
 
 function moveableRook(square) {
     rookClick(square);
-    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+    return BIGDATA.action.highLightSquares.length != 0 || BIGDATA.action.capturableSquares.length != 0;
 }
 
 function moveablePawn(square, color) {
     if (color[0] == 'b') blackPawnClick(square);
     else whitePawnClick(square);
-    return action.highLightSquares.length != 0 || action.capturableSquares.length != 0;
+    return BIGDATA.action.highLightSquares.length != 0 || BIGDATA.action.capturableSquares.length != 0;
 }
 
 function checkMate(color, checkCount) {
-    checkDetails.oncheck = true;
-    const cRow = checkDetails.checker.row;
-    const cCol = checkDetails.checker.col;
+    BIGDATA.checkDetails.oncheck = true;
+    const cRow = BIGDATA.checkDetails.checker.row;
+    const cCol = BIGDATA.checkDetails.checker.col;
     const color2 = opposite[color];
     const kingsMoveOnCheck = findKingsMoveOnCheck(color2);
-    checkDetails.moveKing.high = kingsMoveOnCheck.high;
-    checkDetails.moveKing.capt = kingsMoveOnCheck.capt;
+    BIGDATA.checkDetails.moveKing.high = kingsMoveOnCheck.high;
+    BIGDATA.checkDetails.moveKing.capt = kingsMoveOnCheck.capt;
 
     if (checkCount > 1) {
-        checkDetails.on2Xcheck = true;
+        BIGDATA.checkDetails.on2Xcheck = true;
         if (kingsMoveOnCheck.capt.length == 0 && kingsMoveOnCheck.high.length == 0) {
             endGame(color);
         }
@@ -676,15 +681,15 @@ function checkMate(color, checkCount) {
                 endGame(color);
             }
         }
-        checkDetails.moveOther.high = OtherMoveOnCheck.high;
-        checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
+        BIGDATA.checkDetails.moveOther.high = OtherMoveOnCheck.high;
+        BIGDATA.checkDetails.moveOther.capt = OtherMoveOnCheck.capt;
     }
 }
 
 function isStaleMate(color) {
-    staleMate.staleCheck = true;
+    BIGDATA.staleMate.staleCheck = true;
     let result = false;
-    for (let piece of piecesList[color]) {
+    for (let piece of BIGDATA.piecesList[color]) {
         const type = piece.pieceName.slice(5);
         const square = searchInGameState(piece.currentPosition);
         switch (type) {
@@ -697,7 +702,7 @@ function isStaleMate(color) {
         }
         if (result) break;
     }
-    staleMate.staleCheck = false;
+    BIGDATA.staleMate.staleCheck = false;
     return !result;
 }
 

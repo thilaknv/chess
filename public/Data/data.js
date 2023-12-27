@@ -40,8 +40,8 @@ const canCastle = {
 const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
-function Square(color, id, piece) {
-    return { color, id, piece };
+function Square(color, id) {
+    return { color, id, piece: null };
 }
 
 function SquareRow(rowId) {
@@ -62,94 +62,10 @@ function initGame() {
 
 // gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
 
-const BIGDATA = {
-    gameState: null,
-    staleMate: { staleCheck: false },
-    piecesList: { black: [], white: [] },
-    enpassantDetails: {
-        pawn2Xmoved: false,
-        prevMoveSqId: null,
-        prevMovePieceColor: null,
-        canDoEnpassant: null,
-        goto: null
-    },
-    action: {
-        highLightSquares: [],
-        capturableSquares: [],
-        srcSquare: null,
-        destSquare: null,
-        prevMoveSquares: [],
-        prevColor: 'black'
-    },
-    checkDetails: {
-        oncheck: false,
-        on2Xcheck: false,
-        checker: { row: null, col: null },
-        moveKing: { high: [], capt: [] },
-        moveOther: { high: [], capt: [] }
-    },
-    kingSquare: { black: null, white: null },
-    kingImmediateSet: {
-        black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
-        white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
-    },
-    prevKing: { Var1: false, Var2: true }
-}
-const gameState = null;
-// globle
-const staleMate = {
-    staleCheck: false
-}
 
-const piecesList = {
-    black: [],
-    white: []
-}
-
-const enpassantDetails = {
-    pawn2Xmoved: false,
-    prevMoveSqId: null,
-    prevMovePieceColor: null,
-    canDoEnpassant: null,
-    goto: null
-}
-
-const action = {
-    highLightSquares: [],
-    capturableSquares: [],
-    srcSquare: null,
-    destSquare: null,
-    prevMoveSquares: [],
-    prevColor: 'black'
-}
-
-const checkDetails = {
-    oncheck: false,
-    on2Xcheck: false,
-    checker: { row: null, col: null },
-    moveKing: { high: [], capt: [] },
-    moveOther: { high: [], capt: [] }
-}
-
-const kingSquare = { black: null, white: null }
-
-const kingImmediateSet = {
-    black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
-    white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
-}
-
-const prevKing = {
-    Var1: false,
-    Var2: true
-}
 
 export {
-    alpha, canCastle, BOARD, kingSquare, checkDetails, opposite, kingImmediateSet, action,
-    enpassantDetails, myData, piecesList, valueOf, staleMate, prevKing
-}
-
-export {
-    BIGDATA, gameState
+    alpha, canCastle, BOARD, opposite, myData, valueOf
 }
 
 export {

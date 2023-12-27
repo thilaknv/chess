@@ -1,9 +1,46 @@
+import { myData } from "../Data/data.js";
+import { movementTo } from "../Events/global.js";
 import { start } from "../app.js";
-import { socketMoveRender } from "./main.js";
+import { renderSquares, socketMoveRender } from "./main.js";
 
 // const socket = io('https://chezz-game-socketio-project.onrender.com');
 const socket = io('ws://localhost:3000');
 // const socket = io();
+
+var BIGDATA = {
+    gameState: null,
+    staleMate: { staleCheck: false },
+    piecesList: { black: [], white: [] },
+    enpassantDetails: {
+        pawn2Xmoved: false,
+        prevMoveSqId: null,
+        prevMovePieceColor: null,
+        canDoEnpassant: null,
+        goto: null
+    },
+    action: {
+        highLightSquares: [],
+        capturableSquares: [],
+        srcSquare: null,
+        destSquare: null,
+        prevMoveSquares: [],
+        prevColor: 'black'
+    },
+    checkDetails: {
+        oncheck: false,
+        on2Xcheck: false,
+        checker: { row: null, col: null },
+        moveKing: { high: [], capt: [] },
+        moveOther: { high: [], capt: [] }
+    },
+    kingSquare: { black: null, white: null },
+    kingImmediateSet: {
+        black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
+        white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
+    },
+    prevKing: { Var1: false, Var2: true },
+    CID: null
+}
 
 const gameForms = document.querySelector('.game-forms');
 const username1 = document.querySelector("#username1");
@@ -18,8 +55,6 @@ const exitButton = document.querySelector('#room_game_exit');
 const gameMoveChat = document.querySelector(".game-move-chat");
 const msgList = document.querySelector(".msg-list");
 const msgInput = document.querySelector('#msg-input');
-
-
 const MY = { id: null, room: null }
 
 document.querySelector(".create-form").addEventListener('submit', createRoom);
@@ -112,10 +147,10 @@ function sendMessage(event) {
     // msgInput.focus();
 };
 
-function sendMove(data) {
-    if (data) {
-        socket.emit('sendMove', data);
-    }
+function sendMove(CID) {
+    BIGDATA.CID = CID;
+    socket.emit('sendMove', structuredClone(BIGDATA));
+    myData.myMove = false;
 }
 
 socket.on('roomPage', room => {
@@ -154,10 +189,15 @@ socket.on('message', ({ user, text, time }) => {
     msgList.scrollTop = msgList.scrollHeight;
 });
 
-socket.on('recieveMove', data => {
-    socketMoveRender(data);
+socket.on('recieveMove', BIGDATA_recieved => {
+    BIGDATA = BIGDATA_recieved;
+    movementTo(BIGDATA.CID);
+    myData.myMove = true;
 })
 
 export {
     isNotValidPlayer, sendMove
+}
+export {
+    BIGDATA
 }

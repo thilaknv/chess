@@ -1,42 +1,39 @@
-import { gameState } from "../app.js";
 import {
     highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender,
     RemCapturableSqRender, selectedSqRender, remSelectedSqRender, endGame
 } from "../Render/main.js";
-import {
-    alpha, canCastle, BOARD, kingSquare, opposite, kingImmediateSet,
-    prevKing, myData
-} from "../Data/data.js";
+import { alpha, canCastle, BOARD, opposite, myData } from "../Data/data.js";
 import {
     topLeft, topRight, bottomLeft, bottomRight, left, right, top, bottom,
     checksFromBottom, checksFromBottomLeft, checksFromBottomRight,
     checksFromKnight, checksFromLeft, checksFromRight, checksFromTop,
     checksFromTopLeft, checksFromTopRight, findKingsMoveOnCheck,
-    findOtherMoveOnCheck, findKingsMoveOnCheckHelper, defenderFromBottom,
+    findKingsMoveOnCheckHelper, defenderFromBottom,
     defenderFromBottomLeft, defenderFromBottomRight, defenderFromLeft,
     defenderFromRight, defenderFromTop, defenderFromTopLeft,
-    defenderFromTopRight, isPossibleToDefendCheck, isStaleMate, checkMate
+    defenderFromTopRight, isStaleMate, checkMate
 } from "./traverse.js";
 
-import { BIGDATA } from "../Data/data.js";
+import { BIGDATA, sendMove } from "../Render/socket.js";
+// import { BIGDATA } from "../Data/data.js";
 // gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
 
 
 function searchInGameState(id) {
     const col = id.charCodeAt(0) - 97;
     const row = 8 - Number(id[1]);
-    return gameState[row][col];
+    return BIGDATA.gameState[row][col];
 }
 
 function searchInKingImm(color, id) {
-    if (kingImmediateSet[color].topleft == id) return 'topleft';
-    if (kingImmediateSet[color].top == id) return 'top';
-    if (kingImmediateSet[color].topright == id) return 'topright';
-    if (kingImmediateSet[color].left == id) return 'left';
-    if (kingImmediateSet[color].right == id) return 'right';
-    if (kingImmediateSet[color].bottomleft == id) return 'bottomleft';
-    if (kingImmediateSet[color].bottom == id) return 'bottom';
-    if (kingImmediateSet[color].bottomright == id) return 'bottomright';
+    if (BIGDATA.kingImmediateSet[color].topleft == id) return 'topleft';
+    if (BIGDATA.kingImmediateSet[color].top == id) return 'top';
+    if (BIGDATA.kingImmediateSet[color].topright == id) return 'topright';
+    if (BIGDATA.kingImmediateSet[color].left == id) return 'left';
+    if (BIGDATA.kingImmediateSet[color].right == id) return 'right';
+    if (BIGDATA.kingImmediateSet[color].bottomleft == id) return 'bottomleft';
+    if (BIGDATA.kingImmediateSet[color].bottom == id) return 'bottom';
+    if (BIGDATA.kingImmediateSet[color].bottomright == id) return 'bottomright';
 }
 
 function filterHelperOther(temp) {
@@ -92,18 +89,18 @@ function filterKingImmMove(direction, id, color) {
 }
 
 function updateKingImmMove(color) {
-    const kingSqr = kingSquare[color];
+    const kingSqr = BIGDATA.kingSquare[color];
     const row = 8 - Number(kingSqr.currentPosition[1]);
     const col = kingSqr.currentPosition.charCodeAt(0) - 97;
 
-    kingImmediateSet[color].top = defenderFromTop(row - 1, col, color);
-    kingImmediateSet[color].left = defenderFromLeft(row, col - 1, color);
-    kingImmediateSet[color].right = defenderFromRight(row, col + 1, color);
-    kingImmediateSet[color].bottom = defenderFromBottom(row + 1, col, color);
-    kingImmediateSet[color].topleft = defenderFromTopLeft(row - 1, col - 1, color);
-    kingImmediateSet[color].topright = defenderFromTopRight(row - 1, col + 1, color);
-    kingImmediateSet[color].bottomleft = defenderFromBottomLeft(row + 1, col - 1, color);
-    kingImmediateSet[color].bottomright = defenderFromBottomRight(row + 1, col + 1, color);
+    BIGDATA.kingImmediateSet[color].top = defenderFromTop(row - 1, col, color);
+    BIGDATA.kingImmediateSet[color].left = defenderFromLeft(row, col - 1, color);
+    BIGDATA.kingImmediateSet[color].right = defenderFromRight(row, col + 1, color);
+    BIGDATA.kingImmediateSet[color].bottom = defenderFromBottom(row + 1, col, color);
+    BIGDATA.kingImmediateSet[color].topleft = defenderFromTopLeft(row - 1, col - 1, color);
+    BIGDATA.kingImmediateSet[color].topright = defenderFromTopRight(row - 1, col + 1, color);
+    BIGDATA.kingImmediateSet[color].bottomleft = defenderFromBottomLeft(row + 1, col - 1, color);
+    BIGDATA.kingImmediateSet[color].bottomright = defenderFromBottomRight(row + 1, col + 1, color);
 
 }
 
@@ -305,6 +302,7 @@ function queenClick(square) {
     BIGDATA.staleMate.staleCheck || selectedSqRender(square);
     BIGDATA.action.srcSquare = square;
     const piece = square.piece;
+    console.log(square);
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const rank = Number(square.id[1]);
     const col = square.id.charCodeAt(0);
@@ -380,7 +378,7 @@ function castlingHelper(color) {
         if (findKingsMoveOnCheckHelper(`f${rank}`, color) && findKingsMoveOnCheckHelper(`g${rank}`, color)) {
             BIGDATA.action.highLightSquares.push(`h${rank}`);
             BIGDATA.action.highLightSquares.push(`g${rank}`);
-            prevKing.Var1 = true;
+            BIGDATA.prevKing.Var1 = true;
         }
     }
 
@@ -389,14 +387,14 @@ function castlingHelper(color) {
         if (findKingsMoveOnCheckHelper(`c${rank}`, color) && findKingsMoveOnCheckHelper(`d${rank}`, color)) {
             BIGDATA.action.highLightSquares.push(`a${rank}`);
             BIGDATA.action.highLightSquares.push(`c${rank}`);
-            prevKing.Var1 = true;
+            BIGDATA.prevKing.Var1 = true;
         }
     }
 
 }
 
 function checkForKing(color) {
-    let id = kingSquare[opposite[color]].currentPosition;
+    let id = BIGDATA.kingSquare[opposite[color]].currentPosition;
     const row = 8 - Number(id[1]);
     const col = id.charCodeAt(0) - 97;
 
@@ -438,21 +436,21 @@ function allHighLightRem() {
     }
 }
 
-function movementHelper(clickSquareId, movingPiece, color, notCastle) {
+function movementHelper(clickSquareId, movingPiece, color) {
     BIGDATA.action.destSquare = searchInGameState(clickSquareId);
     movingPiece.currentPosition = clickSquareId;
     if (BIGDATA.action.destSquare.piece) {
         removeFromPieceList(opposite[color], BIGDATA.action.destSquare.piece.currentPosition);
     }
     BIGDATA.action.destSquare.piece = movingPiece;
-    BIGDATA.action.srcSquare.piece = undefined;
+    BIGDATA.action.srcSquare.piece = null;
 
-    if (prevKing.Var2) {
+    if (BIGDATA.prevKing.Var2) {
         while (BIGDATA.action.prevMoveSquares.length)
             remSelectedSqRender(BIGDATA.action.prevMoveSquares.pop());
     }
 
-    renderSquares(BIGDATA.action.srcSquare, BIGDATA.action.destSquare, notCastle);
+    renderSquares(BIGDATA.action.srcSquare, BIGDATA.action.destSquare, true);
     selectedSqRender(BIGDATA.action.destSquare);
     selectedSqRender(BIGDATA.action.srcSquare);
 
@@ -461,11 +459,13 @@ function movementHelper(clickSquareId, movingPiece, color, notCastle) {
 }
 
 function movementTo(clickSquareId) {
+    myData.myMove && sendMove(clickSquareId);
 
-    prevKing.Var2 = true;
+    BIGDATA.prevKing.Var2 = true;
     BIGDATA.enpassantDetails.pawn2Xmoved = false;
 
     const movingPiece = BIGDATA.action.srcSquare.piece;
+    console.log(BIGDATA.action.srcSquare);
     const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
 
@@ -475,7 +475,7 @@ function movementTo(clickSquareId) {
         BIGDATA.enpassantDetails.prevMovePieceColor = color;
     }
 
-    if (prevKing.Var1) {
+    if (BIGDATA.prevKing.Var1) {
         if (clickSquareId[0] == 'h')
             clickSquareId = `g${color == 'black' ? 8 : 1}`;
         if (clickSquareId[0] == 'a')
@@ -490,13 +490,13 @@ function movementTo(clickSquareId) {
     movementHelper(clickSquareId, movingPiece, color);
     BIGDATA.enpassantDetails.canDoEnpassant = false;
 
-    if (prevKing.Var1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
-        prevKing.Var2 = false;
+    if (BIGDATA.prevKing.Var1 && clickSquareId[1] != '2' && clickSquareId[0] != 'd' && clickSquareId[0] != 'f') {
+        BIGDATA.prevKing.Var2 = false;
         let clickSquareId2 = `${clickSquareId[0] == 'g' ? 'f' : 'd'}${clickSquareId[1]}`;
         let tempId = `${clickSquareId[0] == 'g' ? 'h' : 'a'}${color == 'black' ? 8 : 1}`;
         BIGDATA.action.srcSquare = searchInGameState(tempId);
         const movingPiece2 = BIGDATA.action.srcSquare.piece;
-        movementHelper(clickSquareId2, movingPiece2, color, false);
+        movementHelper(clickSquareId2, movingPiece2, color);
     }
 
     if (canCastle[color].status) {
@@ -527,12 +527,7 @@ function movementTo(clickSquareId) {
     } else {
         isStaleMate(opposite[color]) && endGame("Draw");
     }
-    prevKing.Var1 = false;
-
-
-    if (myData.isPlayer) {
-        myData.myMove = !myData.myMove;
-    }
+    BIGDATA.prevKing.Var1 = false;
 }
 
 
@@ -544,6 +539,7 @@ function globalEvent() {
 
     BOARD.addEventListener("click", event => {
 
+        if (!myData.myMove) return;
         if (event.target.id == 'board') return;
         const localName = event.target.localName;
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
@@ -553,7 +549,6 @@ function globalEvent() {
         }
 
         else if (localName == 'img') {
-            if (!myData.myMove) return;
             const square = searchInGameState(clickSquareId);
 
             if (square.piece.pieceName.includes('black')) {
@@ -562,7 +557,7 @@ function globalEvent() {
                 if (myData.color == 'black') return;
             }
             allHighLightRem();
-            prevKing.Var1 = false;
+            BIGDATA.prevKing.Var1 = false;
 
             switch (square.piece.pieceName) {
                 case 'whitePawn':
@@ -600,5 +595,5 @@ function globalEvent() {
 
 export {
     globalEvent, searchInGameState, kingClickHelper, searchInKingImm, removeFromPieceList, queenClick, rookClick, bishopClick, knightClick,
-    whitePawnClick, blackPawnClick
+    whitePawnClick, blackPawnClick, movementTo
 }

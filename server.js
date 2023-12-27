@@ -109,10 +109,10 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendMove', (data) => {
+    socket.on('sendMove', BIGDATA => {
         const user = getUser(socket.id);
         if (user) {
-            socket.broadcast.to(user.roomCODE).emit('recieveMove', data);
+            socket.broadcast.to(user.roomCODE).emit('recieveMove', BIGDATA);
         }
     })
 

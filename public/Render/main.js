@@ -5,7 +5,8 @@ import { removeFromPieceList, searchInGameState } from "../Events/global.js";
 import { sendMove } from "./socket.js";
 
 
-import { BIGDATA } from "../Data/data.js";
+import { BIGDATA } from "./socket.js";
+// import { BIGDATA } from "../Data/data.js";
 // gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
 
 
@@ -93,10 +94,11 @@ function sortPieces() {
     });
 }
 
-function renderSquares(srcSquare, destSquare, notCastle) {
-    const sendData = {
-        from: srcSquare, to: destSquare, removePiece: null, promoteTo: null, notCastle
-    }
+function renderSquares(srcSquare, destSquare, myMove) {
+
+    // renderSquares(BIGDATA.action.srcSquare, BIGDATA.action.destSquare, false);
+    // myMove && sendMove();
+
     const pieceEl = document.querySelector(`#${srcSquare.id} img`);
     const unit = BOARD.offsetHeight / 8;
     const destSquareEl = document.getElementById(destSquare.id);
@@ -108,24 +110,20 @@ function renderSquares(srcSquare, destSquare, notCastle) {
         const row = 8 - Number(BIGDATA.enpassantDetails.prevMoveSqId[1]);
         const col = BIGDATA.enpassantDetails.prevMoveSqId.charCodeAt(0) - 97;
         removeFromPieceList(BIGDATA.gameState[row][col].piece.pieceName.includes('black') ? 'black' : 'white', BIGDATA.enpassantDetails.prevMoveSqId);
-        BIGDATA.gameState[row][col].piece = undefined;
+        BIGDATA.gameState[row][col].piece = null;
         document.getElementById(BIGDATA.enpassantDetails.prevMoveSqId).removeChild(tempImg);
         // socket data
-        sendData.removePiece = BIGDATA.enpassantDetails.prevMoveSqId;
     }
     if (pieceEl.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
         pawnProm = "queen";
         destSquare.piece.pieceName = destSquare.piece.pieceName.replace("Pawn", pawnProm[0].toUpperCase() + pawnProm.slice(1));
         destSquare.piece.src = destSquare.piece.src.replace("pawn", pawnProm);
         // socket data
-        sendData.promoteTo = pawnProm;
     }
     if (childern.length == 2) {
         destSquareEl.removeChild(childern[1]);
         //socket data
-        sendData.removePiece = destSquare.id;
     }
-    sendMove(sendData);
     setTimeout(() => {
         removeAnimation(pieceEl);
         if (pawnProm) {
@@ -135,26 +133,27 @@ function renderSquares(srcSquare, destSquare, notCastle) {
     }, 220);
 }
 
-function socketMoveRender({ from, to, removePiece, promoteTo, notCastle }) {
-    if (notCastle) {
-        while (BIGDATA.action.prevMoveSquares.length)
-            remSelectedSqRender(BIGDATA.action.prevMoveSquares.pop());
-        if (myData.isPlayer) {
-            myData.myMove = !myData.myMove;
-        }
-    }
-    const fromSqr = searchInGameState(from.id);
-    const toSqr = searchInGameState(to.id);
+function socketMoveRender() {
+
+    // if (notCastle) {
+    //     while (BIGDATA.action.prevMoveSquares.length)
+    //         remSelectedSqRender(BIGDATA.action.prevMoveSquares.pop());
+    // }
+    // if (myData.isPlayer) {
+    //     myData.myMove = !myData.myMove;
+    // }
+    // const fromSqr = searchInGameState(from.id);
+    // const toSqr = searchInGameState(to.id);
 
 
 
-    BIGDATA.action.prevMoveSquares.push(fromSqr);
-    BIGDATA.action.prevMoveSquares.push(toSqr);
+    // BIGDATA.action.prevMoveSquares.push(fromSqr);
+    // BIGDATA.action.prevMoveSquares.push(toSqr);
 
-    console.log(arguments);
-    BIGDATA.action.prevMoveSquares.forEach(square => {
-        selectedSqRender(square)
-    });
+    // console.log(arguments);
+    // BIGDATA.action.prevMoveSquares.forEach(square => {
+    //     selectedSqRender(square)
+    // });
 }
 
 function selectedSqRender({ id, color }) {
