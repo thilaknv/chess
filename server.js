@@ -92,10 +92,13 @@ io.on('connection', socket => {
         socket.broadcast.to(room.CODE).emit('updateRoomPage', room);
     });
 
-    socket.on('startGameChat', P2 => {
-        const p2 = getUser(P2);
+    socket.on('startGameChat', p_2 => {
+        const p2 = getUser(p_2);
         if (p2) {
-            io.to(p2.roomCODE).emit('openGameChatBox', p2.room);
+            const room = getRoom(p2.roomCODE);
+            room.gameStatus = true;
+            room.P2 = p2;
+            io.to(p2.roomCODE).emit('openGameChatBox', room);
         }
     });
 
@@ -106,11 +109,10 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendMove', ({ from, to, promotionTo }) => {
+    socket.on('sendMove', (data) => {
         const user = getUser(socket.id);
         if (user) {
-            socket.broadcast.to(user.room).emit('recieveMove',
-                { from, to, promotionTo });
+            socket.broadcast.to(user.roomCODE).emit('recieveMove', data);
         }
     })
 
@@ -144,6 +146,7 @@ const buildMsg = (user, text) => {
 function activateRoom(matchTime, P1Color) {
     const colors = generater.getCOLOR(P1Color);
     const room = {
+        gameStatus: false,
         status: true,
         CODE: generater.getCODE(),
         matchTime,
@@ -178,6 +181,7 @@ function userLeavesRoom(id) {
         room.users = room.users.filter(U => U.id != id);
         if (room.P1.id == id) {
             room.users = [];
+            room.gameStatus = false;
             terminateRoom(room);
         }
     }

@@ -200,21 +200,36 @@ body {
     gap: 5px;
 }
 
-#board {
-    height: var(--board-length);
-    width: var(--board-length);
-    /* display: none; */
+.p-b-p {
+    display: flex;
     flex-direction: column;
 }
 
+#board {
+    height: var(--board-length);
+    width: var(--board-length);
+    display: flex;
+    flex-direction: column;
+}
 
-
-#player1,
-#player2 {
+.player {
     height: calc(var(--board-length) / 10);
     width: var(--board-length);
     background-color: var(--background-color1);
-    flex-direction: column;
+    display: flex;
+}
+
+.player-img {
+    border: 1px solid;
+    height: 90%;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.player-h5 {
+    flex-grow: 1;
+    cursor: auto;
+    /* font-size: ; */
 }
 
 .move-chat {

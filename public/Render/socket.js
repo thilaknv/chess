@@ -1,3 +1,6 @@
+import { start } from "../app.js";
+import { socketMoveRender } from "./main.js";
+
 // const socket = io('https://chezz-game-socketio-project.onrender.com');
 const socket = io('ws://localhost:3000');
 // const socket = io();
@@ -16,7 +19,6 @@ const gameMoveChat = document.querySelector(".game-move-chat");
 const msgList = document.querySelector(".msg-list");
 const msgInput = document.querySelector('#msg-input');
 
-const start = () => console.log("Game Starts Here");
 
 const MY = { id: null, room: null }
 
@@ -37,7 +39,6 @@ function createRoom(event) {
 
 function joinRoom(event) {
     event.preventDefault();
-    console.log(event);
     if (username2.value && joinRoomID.value) {
         socket.emit('joinRoom', {
             name: username2.value,
@@ -55,10 +56,10 @@ function updateUserList(room, id) {
             usersList1.innerHTML += `
                 <div class="rp-list">
                     <div class="rp-list-label">
-                        <img for="abc" class="rp-list-img" src="./images/pieces/black/pawn.png" alt="">
-                        <h4 for="abc" class="rp-list-h4">
+                        <img class="rp-list-img" src="./images/pieces/black/pawn.png" alt="">
+                        <h4 class="rp-list-h4">
                             ${user.id == id ? 'You' : user.name}</h4>
-                        <span for="abc" class="rp-list-span">
+                        <span class="rp-list-span">
                             ${user.id == room.P1.id ? 'host' : 'member'}</span>
                     </div>
                 </div>
@@ -68,10 +69,10 @@ function updateUserList(room, id) {
                 <div class="rp-list">
                     <input id="rad${i}" class="rp-list-radio" type="radio" name="P2" value="${user.id}">
                     <label for="rad${i}" class="rp-list-label">
-                        <img for="abc" class="rp-list-img" src="./images/pieces/black/pawn.png" alt="">
-                        <h4 for="abc" class="rp-list-h4">
+                        <img class="rp-list-img" src="./images/pieces/black/pawn.png" alt="">
+                        <h4 class="rp-list-h4">
                             ${user.id == id ? 'You' : user.name}</h4>
-                        <span for="abc" class="rp-list-span">
+                        <span class="rp-list-span">
                             ${user.id == room.P1.id ? 'host' : 'member'}</span>
                     </label>
                 </div>
@@ -86,6 +87,10 @@ function updateUserList(room, id) {
             startButton.style.display = 'none';
         }
     }
+}
+
+function isNotValidPlayer() {
+    // return MY.id != room.P1.id || MY.id != room.P2.id || !room || !room.P1 || !room.P2;
 }
 
 roomPage.addEventListener('submit', (event) => {
@@ -107,6 +112,12 @@ function sendMessage(event) {
     // msgInput.focus();
 };
 
+function sendMove(data) {
+    if (data) {
+        socket.emit('sendMove', data);
+    }
+}
+
 socket.on('roomPage', room => {
     MY.room = room;
     MY.id = socket.id;
@@ -118,6 +129,7 @@ socket.on('roomPage', room => {
 socket.on('updateRoomPage', room => updateUserList(room, socket.id));
 
 socket.on('openGameChatBox', room => {
+    start(room, MY.id);
     roomPage.style.display = 'none';
     gameMoveChat.style.display = 'flex';
 });
@@ -142,5 +154,10 @@ socket.on('message', ({ user, text, time }) => {
     msgList.scrollTop = msgList.scrollHeight;
 });
 
+socket.on('recieveMove', data => {
+    socketMoveRender(data);
+})
+
 export {
+    isNotValidPlayer, sendMove
 }
