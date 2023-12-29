@@ -24,6 +24,7 @@ function topLeft(highLightSquares, capturableSquares, i, j, type) {
 
 function topRight(highLightSquares, capturableSquares, i, j, type) {
     if (i < 0 || j > 7) return;
+    // console.log(BIGDATA.gameState[i][j].piece);
     if (BIGDATA.gameState[i][j].piece) {
         if (type[0] != BIGDATA.gameState[i][j].piece.pieceName[0]) {
             capturableSquares.push(`${alpha[j]}${8 - i}`);

@@ -302,7 +302,6 @@ function queenClick(square) {
     BIGDATA.staleMate.staleCheck || selectedSqRender(square);
     BIGDATA.action.srcSquare = square;
     const piece = square.piece;
-    console.log(square);
     const color = piece.pieceName.includes('black') ? 'black' : 'white';
     const rank = Number(square.id[1]);
     const col = square.id.charCodeAt(0);
@@ -437,7 +436,10 @@ function allHighLightRem() {
 }
 
 function movementHelper(clickSquareId, movingPiece, color) {
+
     BIGDATA.action.destSquare = searchInGameState(clickSquareId);
+    BIGDATA.action.srcSquare = searchInGameState(BIGDATA.action.srcSquare.id);
+    
     movingPiece.currentPosition = clickSquareId;
     if (BIGDATA.action.destSquare.piece) {
         removeFromPieceList(opposite[color], BIGDATA.action.destSquare.piece.currentPosition);
@@ -459,13 +461,11 @@ function movementHelper(clickSquareId, movingPiece, color) {
 }
 
 function movementTo(clickSquareId) {
-    myData.myMove && sendMove(clickSquareId);
 
     BIGDATA.prevKing.Var2 = true;
     BIGDATA.enpassantDetails.pawn2Xmoved = false;
 
     const movingPiece = BIGDATA.action.srcSquare.piece;
-    console.log(BIGDATA.action.srcSquare);
     const color = movingPiece.pieceName.includes("black") ? 'black' : 'white';
 
 
@@ -545,6 +545,7 @@ function globalEvent() {
         let clickSquareId = localName == 'div' ? event.target.id : event.target.parentNode.id;
 
         if (BIGDATA.action.highLightSquares.includes(clickSquareId) || BIGDATA.action.capturableSquares.includes(clickSquareId)) {
+            sendMove(clickSquareId)
             movementTo(clickSquareId);
         }
 

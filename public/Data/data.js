@@ -1,4 +1,5 @@
 const BOARD = document.querySelector("#board");
+
 const themeSet = [
     ["#e9edcc", "#779954"]
 ]

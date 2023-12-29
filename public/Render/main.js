@@ -94,7 +94,7 @@ function sortPieces() {
     });
 }
 
-function renderSquares(srcSquare, destSquare, myMove) {
+function renderSquares(srcSquare, destSquare) {
 
     // renderSquares(BIGDATA.action.srcSquare, BIGDATA.action.destSquare, false);
     // myMove && sendMove();

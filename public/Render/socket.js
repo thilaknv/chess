@@ -1,7 +1,6 @@
 import { myData } from "../Data/data.js";
 import { movementTo } from "../Events/global.js";
 import { start } from "../app.js";
-import { renderSquares, socketMoveRender } from "./main.js";
 
 // const socket = io('https://chezz-game-socketio-project.onrender.com');
 const socket = io('ws://localhost:3000');
@@ -10,7 +9,7 @@ const socket = io('ws://localhost:3000');
 var BIGDATA = {
     gameState: null,
     staleMate: { staleCheck: false },
-    piecesList: { black: [], white: [] },
+    piecesList: { black: [], white: [] },//this
     enpassantDetails: {
         pawn2Xmoved: false,
         prevMoveSqId: null,
@@ -21,8 +20,8 @@ var BIGDATA = {
     action: {
         highLightSquares: [],
         capturableSquares: [],
-        srcSquare: null,
-        destSquare: null,
+        srcSquare: null, //done
+        destSquare: null, //done
         prevMoveSquares: [],
         prevColor: 'black'
     },
@@ -33,7 +32,7 @@ var BIGDATA = {
         moveKing: { high: [], capt: [] },
         moveOther: { high: [], capt: [] }
     },
-    kingSquare: { black: null, white: null },
+    kingSquare: { black: null, white: null },//this
     kingImmediateSet: {
         black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
         white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
@@ -149,7 +148,7 @@ function sendMessage(event) {
 
 function sendMove(CID) {
     BIGDATA.CID = CID;
-    socket.emit('sendMove', structuredClone(BIGDATA));
+    socket.emit('sendMove', JSON.stringify(BIGDATA));
     myData.myMove = false;
 }
 
@@ -189,8 +188,8 @@ socket.on('message', ({ user, text, time }) => {
     msgList.scrollTop = msgList.scrollHeight;
 });
 
-socket.on('recieveMove', BIGDATA_recieved => {
-    BIGDATA = BIGDATA_recieved;
+socket.on('recieveMove', BIGDATA_1 => {
+    BIGDATA = JSON.parse(BIGDATA_1);
     movementTo(BIGDATA.CID);
     myData.myMove = true;
 })
