@@ -109,12 +109,12 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendMove', BIGDATA => {
+    socket.on('sendMove', ({fromId, toId}) => {
         const user = getUser(socket.id);
         if (user) {
-            socket.broadcast.to(user.roomCODE).emit('recieveMove', BIGDATA);
+            socket.broadcast.to(user.roomCODE).emit('recieveMove', {fromId, toId});
         }
-    })
+    });
 
     socket.on('disconnect', () => {
         const UR = userLeavesRoom(socket.id);

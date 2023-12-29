@@ -1,14 +1,12 @@
 import * as piece from "../Data/pieces.js"
-import { BOARD, valueOf, myData } from "../Data/data.js";
+import { BOARD, valueOf } from "../Data/data.js";
 import { addAnimation, removeAnimation } from "../Events/animation.js";
-import { removeFromPieceList, searchInGameState } from "../Events/global.js";
-import { sendMove } from "./socket.js";
+import { removeFromPieceList } from "../Events/global.js";
+import { gameState, player_name } from "../app.js";
 
-
-import { BIGDATA } from "./socket.js";
-// import { BIGDATA } from "../Data/data.js";
-// gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
-
+import {
+    piecesList, enpassantDetails, kingSquare
+} from "../Data/data.js";
 
 function pieceRender(data) {
     data.forEach(row => {
@@ -49,7 +47,7 @@ function initGameRender(data) {
                     square.piece = piece.whiteQueen(square.id);
                 else
                     square.piece = piece.whiteKing(square.id);
-                BIGDATA.piecesList['white'].push(square.piece);
+                piecesList['white'].push(square.piece);
             }
             else if (rank == 8) {
                 if (col == 'a' || col == 'h')
@@ -62,32 +60,32 @@ function initGameRender(data) {
                     square.piece = piece.blackQueen(square.id);
                 else
                     square.piece = piece.blackKing(square.id);
-                BIGDATA.piecesList['black'].push(square.piece);
+                piecesList['black'].push(square.piece);
             }
             else if (rank == 2) {
                 square.piece = piece.whitePawn(square.id);
-                BIGDATA.piecesList['white'].push(square.piece);
+                piecesList['white'].push(square.piece);
             } else if (rank == 7) {
                 square.piece = piece.blackPawn(square.id);
-                BIGDATA.piecesList['black'].push(square.piece);
+                piecesList['black'].push(square.piece);
             }
         });
         rowDiv.classList.add("rowDiv");
         BOARD.appendChild(rowDiv);
     });
     pieceRender(data);
-    BIGDATA.kingSquare.black = BIGDATA.gameState[0][4].piece;
-    BIGDATA.kingSquare.white = BIGDATA.gameState[7][4].piece;
+    kingSquare.black = gameState[0][4].piece;
+    kingSquare.white = gameState[7][4].piece;
     sortPieces();
 }
 
 function sortPieces() {
-    BIGDATA.piecesList['black'].sort((a, b) => {
+    piecesList['black'].sort((a, b) => {
         a = a.pieceName.substring(5);
         b = b.pieceName.substring(5);
         return valueOf[b] - valueOf[a];
     });
-    BIGDATA.piecesList['white'].sort((a, b) => {
+    piecesList['white'].sort((a, b) => {
         a = a.pieceName.substring(5);
         b = b.pieceName.substring(5);
         return valueOf[b] - valueOf[a];
@@ -96,33 +94,27 @@ function sortPieces() {
 
 function renderSquares(srcSquare, destSquare) {
 
-    // renderSquares(BIGDATA.action.srcSquare, BIGDATA.action.destSquare, false);
-    // myMove && sendMove();
-
     const pieceEl = document.querySelector(`#${srcSquare.id} img`);
     const unit = BOARD.offsetHeight / 8;
     const destSquareEl = document.getElementById(destSquare.id);
     const childern = destSquareEl.childNodes;
     let pawnProm = false;
     addAnimation(pieceEl, srcSquare.id, destSquare.id, unit);
-    if (BIGDATA.enpassantDetails.canDoEnpassant) {
-        const tempImg = document.querySelector(`#${BIGDATA.enpassantDetails.prevMoveSqId} img`);
-        const row = 8 - Number(BIGDATA.enpassantDetails.prevMoveSqId[1]);
-        const col = BIGDATA.enpassantDetails.prevMoveSqId.charCodeAt(0) - 97;
-        removeFromPieceList(BIGDATA.gameState[row][col].piece.pieceName.includes('black') ? 'black' : 'white', BIGDATA.enpassantDetails.prevMoveSqId);
-        BIGDATA.gameState[row][col].piece = null;
-        document.getElementById(BIGDATA.enpassantDetails.prevMoveSqId).removeChild(tempImg);
-        // socket data
+    if (enpassantDetails.canDoEnpassant) {
+        const tempImg = document.querySelector(`#${enpassantDetails.prevMoveSqId} img`);
+        const row = 8 - Number(enpassantDetails.prevMoveSqId[1]);
+        const col = enpassantDetails.prevMoveSqId.charCodeAt(0) - 97;
+        removeFromPieceList(gameState[row][col].piece.pieceName.includes('black') ? 'black' : 'white', enpassantDetails.prevMoveSqId);
+        gameState[row][col].piece = null;
+        document.getElementById(enpassantDetails.prevMoveSqId).removeChild(tempImg);
     }
     if (pieceEl.src.includes("pawn") && (destSquare.id[1] == 1 || destSquare.id[1] == 8)) {
         pawnProm = "queen";
         destSquare.piece.pieceName = destSquare.piece.pieceName.replace("Pawn", pawnProm[0].toUpperCase() + pawnProm.slice(1));
         destSquare.piece.src = destSquare.piece.src.replace("pawn", pawnProm);
-        // socket data
     }
     if (childern.length == 2) {
         destSquareEl.removeChild(childern[1]);
-        //socket data
     }
     setTimeout(() => {
         removeAnimation(pieceEl);
@@ -133,28 +125,6 @@ function renderSquares(srcSquare, destSquare) {
     }, 220);
 }
 
-function socketMoveRender() {
-
-    // if (notCastle) {
-    //     while (BIGDATA.action.prevMoveSquares.length)
-    //         remSelectedSqRender(BIGDATA.action.prevMoveSquares.pop());
-    // }
-    // if (myData.isPlayer) {
-    //     myData.myMove = !myData.myMove;
-    // }
-    // const fromSqr = searchInGameState(from.id);
-    // const toSqr = searchInGameState(to.id);
-
-
-
-    // BIGDATA.action.prevMoveSquares.push(fromSqr);
-    // BIGDATA.action.prevMoveSquares.push(toSqr);
-
-    // console.log(arguments);
-    // BIGDATA.action.prevMoveSquares.forEach(square => {
-    //     selectedSqRender(square)
-    // });
-}
 
 function selectedSqRender({ id, color }) {
     const selSquare = document.querySelector(`#${id}`);
@@ -206,13 +176,11 @@ function endGame(color) {
         if (color[0] == 'D')
             document.querySelector("#winner").innerText = color;
         else
-            document.querySelector("#winner").innerText = color + " won the game";
-        console.log(BIGDATA.gameState);
-        console.log(BIGDATA.piecesList);
+            document.querySelector("#winner").innerText = player_name[color] + " won the game";
     }, 500);
 }
 
 export {
     initGameRender, highLightSqRender, remHighLightSqRender, renderSquares, capturableSqRender, RemCapturableSqRender,
-    selectedSqRender, remSelectedSqRender, endGame, socketMoveRender
+    selectedSqRender, remSelectedSqRender, endGame
 }

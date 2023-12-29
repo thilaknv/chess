@@ -1,45 +1,10 @@
 import { myData } from "../Data/data.js";
-import { movementTo } from "../Events/global.js";
+import { manualEvent } from "../Events/global.js";
 import { start } from "../app.js";
 
 // const socket = io('https://chezz-game-socketio-project.onrender.com');
 const socket = io('ws://localhost:3000');
 // const socket = io();
-
-var BIGDATA = {
-    gameState: null,
-    staleMate: { staleCheck: false },
-    piecesList: { black: [], white: [] },//this
-    enpassantDetails: {
-        pawn2Xmoved: false,
-        prevMoveSqId: null,
-        prevMovePieceColor: null,
-        canDoEnpassant: null,
-        goto: null
-    },
-    action: {
-        highLightSquares: [],
-        capturableSquares: [],
-        srcSquare: null, //done
-        destSquare: null, //done
-        prevMoveSquares: [],
-        prevColor: 'black'
-    },
-    checkDetails: {
-        oncheck: false,
-        on2Xcheck: false,
-        checker: { row: null, col: null },
-        moveKing: { high: [], capt: [] },
-        moveOther: { high: [], capt: [] }
-    },
-    kingSquare: { black: null, white: null },//this
-    kingImmediateSet: {
-        black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
-        white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
-    },
-    prevKing: { Var1: false, Var2: true },
-    CID: null
-}
 
 const gameForms = document.querySelector('.game-forms');
 const username1 = document.querySelector("#username1");
@@ -123,9 +88,6 @@ function updateUserList(room, id) {
     }
 }
 
-function isNotValidPlayer() {
-    // return MY.id != room.P1.id || MY.id != room.P2.id || !room || !room.P1 || !room.P2;
-}
 
 roomPage.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -146,9 +108,8 @@ function sendMessage(event) {
     // msgInput.focus();
 };
 
-function sendMove(CID) {
-    BIGDATA.CID = CID;
-    socket.emit('sendMove', JSON.stringify(BIGDATA));
+function sendMove(fromId, toId) {
+    socket.emit('sendMove', { fromId, toId });
     myData.myMove = false;
 }
 
@@ -188,15 +149,12 @@ socket.on('message', ({ user, text, time }) => {
     msgList.scrollTop = msgList.scrollHeight;
 });
 
-socket.on('recieveMove', BIGDATA_1 => {
-    BIGDATA = JSON.parse(BIGDATA_1);
-    movementTo(BIGDATA.CID);
+socket.on('recieveMove', ({ fromId, toId }) => {
+    manualEvent(fromId, toId);
     myData.myMove = true;
-})
+});
+
 
 export {
-    isNotValidPlayer, sendMove
-}
-export {
-    BIGDATA
+    sendMove, gameMoveChat
 }

@@ -1,9 +1,11 @@
 const BOARD = document.querySelector("#board");
-
-const themeSet = [
-    ["#e9edcc", "#779954"]
-]
-let themeCode = 0;
+const theme = {
+    active: 0,
+    themeSet: [
+        ["#e9edcc", "#779954"],
+        ["white", "black"]
+    ]
+}
 
 const valueOf = {
     King: 5,
@@ -41,6 +43,44 @@ const canCastle = {
 const alpha = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
+const staleMate = { staleCheck: false }
+
+const piecesList = { black: [], white: [] }
+
+const enpassantDetails = {
+    pawn2Xmoved: false,
+    prevMoveSqId: null,
+    prevMovePieceColor: null,
+    canDoEnpassant: null,
+    goto: null
+}
+
+const action = {
+    highLightSquares: [],
+    capturableSquares: [],
+    srcSquare: null, //done
+    destSquare: null, //done
+    prevMoveSquares: [],
+    prevColor: 'black'
+}
+
+const checkDetails = {
+    oncheck: false,
+    on2Xcheck: false,
+    checker: { row: null, col: null },
+    moveKing: { high: [], capt: [] },
+    moveOther: { high: [], capt: [] }
+}
+
+const kingSquare = { black: null, white: null }
+
+const kingImmediateSet = {
+    black: { topleft: null, top: null, topright: null, left: 'd8', right: 'f8', bottomleft: 'd7', bottom: 'e7', bottomright: 'f7' },
+    white: { topleft: 'd2', top: 'e2', topright: 'f2', left: 'd1', right: 'f1', bottomleft: null, bottom: null, bottomright: null }
+}
+
+const prevKing = { Var1: false, Var2: true };
+
 function Square(color, id) {
     return { color, id, piece: null };
 }
@@ -63,10 +103,10 @@ function initGame() {
 
 // gameState, staleMate, piecesList, enpassantDetails, action, checkDetails, kingSquare, kingImmediateSet, prevKing
 
-
-
 export {
-    alpha, canCastle, BOARD, opposite, myData, valueOf
+    alpha, canCastle, BOARD, opposite, myData, valueOf,
+    staleMate, piecesList, enpassantDetails,
+    action, checkDetails, kingSquare, kingImmediateSet, prevKing
 }
 
 export {

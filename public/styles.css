@@ -24,12 +24,12 @@
 
 body {
     color: var(--color1);
-    background: rgb(0, 10, 61);
-    background: linear-gradient(0deg, rgba(0, 10, 61, 1) 0%, rgba(0, 12, 70, 1) 10%, rgba(0, 22, 148, 1) 90%, rgba(0, 20, 130, 1) 100%);
+    background: rgb(25, 25, 25);
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: auto;
 }
 
 .game-forms {
@@ -448,13 +448,3 @@ body {
         --board-length: 100vw;
     }
 }
-
-/* old */
-
-/* .game-forms {
-    display: none;
-}
-
-.game-move-chat {
-    display: flex;
-} */
