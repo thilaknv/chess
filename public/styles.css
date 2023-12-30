@@ -12,7 +12,10 @@
     --scroll-thumb-color: #bcbed550;
 
     --background-color1: rgb(25, 25, 25);
+    /* message */
     --background-color2: rgb(50, 50, 50);
+    /**/
+    --background-color3: rgb(63, 63, 63);
 }
 
 * {
@@ -25,8 +28,10 @@
 body {
     color: var(--color1);
     background: rgb(25, 25, 25);
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: auto;
@@ -197,7 +202,9 @@ body {
 .game-move-chat {
     display: none;
     flex-direction: row;
-    gap: 5px;
+    width: 99%;
+    max-width: calc(2 * var(--board-length));
+    gap: 10px;
 }
 
 .p-b-p {
@@ -215,8 +222,9 @@ body {
 .player {
     height: calc(var(--board-length) / 10);
     width: var(--board-length);
-    background-color: var(--background-color1);
+    background-color: var(--background-color3);
     display: flex;
+    border-radius: 5px;
 }
 
 .player-img {
@@ -229,26 +237,30 @@ body {
 .player-h5 {
     flex-grow: 1;
     cursor: auto;
-    /* font-size: ; */
 }
 
 .move-chat {
     display: flex;
     flex-direction: column;
-    background-color: transparent;
-    height: calc(6 * var(--board-length) / 5);
-    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    max-width: var(--board-length);
+    max-height: calc(6 * var(--board-length) / 5);
+    gap: 10px;
 }
 
 #movesBox,
 #chatBox {
-    background-color: var(--background-color1);
+    background-color: var(--background-color3);
     height: 50%;
+    width: 100%;
     color: var(--color2);
-    width: var(--board-length);
+    z-index: 5;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
+    transition: 0.3s;
 }
 
 #movesBox {
@@ -257,6 +269,41 @@ body {
 
 #chatBox {
     height: 55%;
+}
+
+.MC-nav-buttons {
+    z-index: 2;
+    background-color: var(--background-color3);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 30px 0px 30px;
+    gap: 10px;
+    height: 100%;
+    width: 100%;
+}
+
+#flip_nav,
+#openMovesBox_nav,
+#openChatBox_nav {
+    color: var(--color1);
+    border: none;
+    background-color: var(--background-color1);
+    border-radius: 5px;
+    flex-grow: 1;
+    font-size: medium;
+    height: 80%;
+    outline: none;
+}
+
+#openChatBox_nav {
+    flex-grow: 2;
+}
+
+#flip_nav:active,
+#openMovesBox_nav:active,
+#openChatBox_nav:active {
+    transform: scale(95%);
 }
 
 .msg-list {
@@ -443,8 +490,61 @@ body {
     background-color: #bcbed550;
 }
 
-@media(max-width : 80vh) {
+
+
+/* .game-forms {
+    display: none;
+}
+
+.game-move-chat {
+    display: flex;
+} */
+
+@media(width < 135vh) {
     :root {
-        --board-length: 100vw;
+        --board-length: calc(71vh);
+    }
+
+    .game-move-chat {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .move-chat {
+        background-color: var(--background-color3);
+        width: 100%;
+        position: fixed;
+        z-index: 5;
+        height: 6vh;
+        border-radius: 5px;
+        bottom: 5px;
+    }
+
+    #movesBox,
+    #chatBox {
+        background-color: var(--background-color1);
+        height: 90vh;
+        border: 1px solid;
+        z-index: 5;
+        position: fixed;
+        border-radius: inherit;
+    }
+
+    .hide_nav {
+        transform: translateY(calc(var(--board-length)));
+    }
+
+    .MC-nav-buttons {
+        display: flex;
+    }
+
+    .display_nav {
+        transform: translateY(-48vh);
+    }
+}
+
+@media(width < 71vh) {
+    :root {
+        --board-length: 99vw;
     }
 }

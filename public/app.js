@@ -3,6 +3,12 @@ import { initGameRender } from "./Render/main.js"
 import { globalEvent } from "./Events/global.js";
 import { gameMoveChat } from "./Render/socket.js";
 
+const flip_nav = document.querySelector('#flip_nav');
+const openChatBox_nav = document.querySelector('#openChatBox_nav');
+const openMovesBox_nav = document.querySelector('#openMovesBox_nav');
+const movesBox = document.querySelector('#movesBox');
+const chatBox = document.querySelector('#chatBox');
+
 const player_name = {
     black: null,
     white: null
@@ -11,9 +17,9 @@ var gameState;
 var fliped = false;
 
 function start(room, id) {
+    
     gameState = initGame();
     initGameRender(gameState);
-
     player_name[room.P1Color] = room.P1.name;
     player_name[room.P2Color] = room.P2.name;
     document.querySelector('#player_B').innerText = player_name['black'];
@@ -33,7 +39,7 @@ function start(room, id) {
 
         globalEvent();
         myData.color == 'black' && flip();
-        alignBoard();
+        // alignBoard();
     }
 }
 
@@ -48,14 +54,21 @@ function flip() {
     fliped = !fliped;
 }
 
-function alignBoard() {
-    const width = document.querySelector('body').offsetWidth;
-    const height = document.querySelector('body').offsetHeight;
-    if (width < height * 1.92) {
-        gameMoveChat.style.flexDirection = 'column';
-        gameMoveChat.scrollTop = '0px';
+flip_nav.addEventListener('click', flip);
+
+openChatBox_nav.addEventListener('click', (e) => {
+    if (movesBox.classList.contains('display_nav')) {
+        movesBox.classList.remove('display_nav');
     }
-}
+    chatBox.classList.toggle('display_nav');
+});
+
+openMovesBox_nav.addEventListener('click', (e) => {
+    if (chatBox.classList.contains('display_nav')) {
+        chatBox.classList.remove('display_nav');
+    }
+    movesBox.classList.toggle('display_nav');
+});
 
 export {
     start, flip, fliped, gameState, player_name
