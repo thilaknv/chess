@@ -503,13 +503,13 @@ body {
 
 
 
-.game-forms {
+/* .game-forms {
     display: none;
 }
 
 .game-move-chat {
     display: flex;
-}
+} */
 
 @media(width < 135vh) {
     :root {
