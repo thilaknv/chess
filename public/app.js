@@ -1,7 +1,6 @@
 import { initGame, myData } from "./Data/data.js";
 import { initGameRender } from "./Render/main.js"
 import { globalEvent } from "./Events/global.js";
-import { gameMoveChat } from "./Render/socket.js";
 
 const flip_nav = document.querySelector('#flip_nav');
 const openChatBox_nav = document.querySelector('#openChatBox_nav');
@@ -57,17 +56,17 @@ function flip() {
 flip_nav.addEventListener('click', flip);
 
 openChatBox_nav.addEventListener('click', (e) => {
-    if (movesBox.classList.contains('display_nav')) {
-        movesBox.classList.remove('display_nav');
+    if (movesBox.classList.contains('display_nav2')) {
+        movesBox.classList.remove('display_nav2');
     }
-    chatBox.classList.toggle('display_nav');
+    chatBox.classList.toggle('display_nav1');
 });
 
 openMovesBox_nav.addEventListener('click', (e) => {
-    if (chatBox.classList.contains('display_nav')) {
-        chatBox.classList.remove('display_nav');
+    if (chatBox.classList.contains('display_nav1')) {
+        chatBox.classList.remove('display_nav1');
     }
-    movesBox.classList.toggle('display_nav');
+    movesBox.classList.toggle('display_nav2');
 });
 
 export {

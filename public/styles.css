@@ -258,9 +258,14 @@ body {
     color: var(--color2);
     z-index: 5;
     border-radius: 5px;
-    display: flex;
     flex-direction: column;
-    transition: 0.3s;
+    transition: 0.5s;
+}
+
+/* hide_nav is for chatbox and movesbox to hide */
+.hide_nav1,
+.hide_nav2 {
+    display: flex;
 }
 
 #movesBox {
@@ -294,6 +299,7 @@ body {
     font-size: medium;
     height: 80%;
     outline: none;
+    cursor: pointer;
 }
 
 #openChatBox_nav {
@@ -305,7 +311,6 @@ body {
 #openChatBox_nav:active {
     transform: scale(95%);
 }
-
 .msg-list {
     width: 100%;
     display: flex;
@@ -318,6 +323,11 @@ body {
     scrollbar-gutter: stable;
 }
 
+.nothing {
+    height: 50%;
+    max-height: 100px;
+}
+
 .msg-list-left,
 .msg-list-right {
     background-color: var(--background-color2);
@@ -325,6 +335,7 @@ body {
     max-width: 80%;
     display: flex;
     flex-direction: column;
+    align-self: flex-end;
     border-radius: 5px;
     padding: 5px;
     gap: 5px;
@@ -465,7 +476,7 @@ body {
     background-color: var(--background-color1);
     border-radius: 10px;
     top: 40%;
-    z-index: 1;
+    z-index: 10;
     align-items: center;
     justify-content: center;
     gap: 40px;
@@ -492,13 +503,13 @@ body {
 
 
 
-/* .game-forms {
+.game-forms {
     display: none;
 }
 
 .game-move-chat {
     display: flex;
-} */
+}
 
 @media(width < 135vh) {
     :root {
@@ -523,23 +534,36 @@ body {
     #movesBox,
     #chatBox {
         background-color: var(--background-color1);
-        height: 90vh;
-        border: 1px solid;
-        z-index: 5;
+        height: 85vh;
+        box-shadow: 0px 0px 10px 1px;
         position: fixed;
         border-radius: inherit;
+        width: 99%;
+        z-index: 5;
     }
 
-    .hide_nav {
-        transform: translateY(calc(var(--board-length)));
+    .hide_nav1 {
+        scale: 0.04;
+        translate: 0vh 20vh;
+    }
+
+    .hide_nav2 {
+        scale: 0.04;
+        translate: calc(var(--board-length) / 2) 20vh;
     }
 
     .MC-nav-buttons {
         display: flex;
     }
 
-    .display_nav {
-        transform: translateY(-48vh);
+    .display_nav1 {
+        scale: 1;
+        translate: 0vh -46vh;
+    }
+
+    .display_nav2 {
+        scale: 1;
+        translate: 0vh -46vh;
     }
 }
 
