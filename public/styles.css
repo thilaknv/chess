@@ -502,15 +502,6 @@ body {
 }
 
 
-
-/* .game-forms {
-    display: none;
-}
-
-.game-move-chat {
-    display: flex;
-} */
-
 @media(width < 135vh) {
     :root {
         --board-length: calc(71vh);

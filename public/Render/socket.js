@@ -1,9 +1,10 @@
-import { myData } from "../Data/data.js";
+import { myData, opposite } from "../Data/data.js";
 import { manualEvent } from "../Events/global.js";
 import { start } from "../app.js";
+import { endGame } from "./main.js";
 
-const socket = io('https://chezz-game-socketio-project.onrender.com');
-// const socket = io('ws://localhost:3000');
+// const socket = io('https://chezz-game-socketio-project.onrender.com');
+const socket = io('ws://localhost:3000');
 // const socket = io();
 
 const gameForms = document.querySelector('.game-forms');
@@ -47,7 +48,10 @@ function joinRoom(event) {
 }
 
 function updateUserList(room, id) {
+    MY.room = room;
     document.querySelector('#shareCode').innerText = `${room.CODE}`;
+    if (room.CODE == 'CLOSED') document.querySelector('#shareCode').style.color = 'red';
+
     usersList1.textContent = '';
 
     room && room.users.forEach((user, i) => {
@@ -88,13 +92,15 @@ function updateUserList(room, id) {
     }
 }
 
-
 roomPage.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(roomPage);
     const P2 = formData.get("P2");
     if (event.submitter.id == "room_game_start") {
         socket.emit('startGameChat', P2);
+    } else {
+        socket.emit('exitRoom');
+        location.reload();
     }
 });
 
@@ -113,6 +119,22 @@ function sendMove(fromId, toId) {
     myData.myMove = false;
 }
 
+function getname(color) {
+    if (MY.room) {
+        if (color == MY.room.P1Color) {
+            if (MY.room.P1.id == MY.id) {
+                return 'You';
+            }
+            return MY.room.P1.name;
+        } else {
+            if (MY.room.P2.id == MY.id) {
+                return 'You';
+            }
+            return MY.room.P2.name;
+        }
+    }
+}
+
 socket.on('roomPage', room => {
     MY.room = room;
     MY.id = socket.id;
@@ -121,7 +143,7 @@ socket.on('roomPage', room => {
     roomPage.style.display = 'flex';
 });
 
-socket.on('updateRoomPage', room => updateUserList(room, socket.id));
+socket.on('updateRoom', room => updateUserList(room, socket.id));
 
 socket.on('openGameChatBox', room => {
     start(room, MY.id);
@@ -150,11 +172,20 @@ socket.on('message', ({ user, text, time }) => {
 });
 
 socket.on('recieveMove', ({ fromId, toId }) => {
+    console.log(MY.room);
     manualEvent(fromId, toId);
     myData.myMove = true;
 });
 
+socket.on('endGame', ({ exitedUserId }) => {
+    console.log(MY.room);
+    if (exitedUserId == MY.room.P1.id)
+        endGame(MY.room.P2Color);
+    if (exitedUserId == MY.room.P2.id)
+        endGame(MY.room.P1Color);
+    return 'Draw';
+});
 
 export {
-    sendMove, gameMoveChat
+    sendMove, gameMoveChat, getname
 }

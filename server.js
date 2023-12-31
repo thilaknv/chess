@@ -88,7 +88,7 @@ io.on('connection', socket => {
 
         // to user
         socket.emit('roomPage', room);
-        socket.broadcast.to(room.CODE).emit('updateRoomPage', room);
+        socket.broadcast.to(room.CODE).emit('updateRoom', room);
     });
 
     socket.on('startGameChat', p_2 => {
@@ -97,6 +97,7 @@ io.on('connection', socket => {
             const room = getRoom(p2.roomCODE);
             room.gameStatus = true;
             room.P2 = p2;
+            console.log(room);
             io.to(p2.roomCODE).emit('openGameChatBox', room);
         }
     });
@@ -108,24 +109,53 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendMove', ({fromId, toId}) => {
+    socket.on('sendMove', ({ fromId, toId }) => {
         const user = getUser(socket.id);
         if (user) {
-            socket.broadcast.to(user.roomCODE).emit('recieveMove', {fromId, toId});
+            socket.broadcast.to(user.roomCODE).emit('recieveMove', { fromId, toId });
         }
     });
 
-    socket.on('disconnect', () => {
-        const UR = userLeavesRoom(socket.id);
-        if (UR && UR.user) {
-            if (UR.room) {
-                if (!UR.room.status) {
-                    UR.room.CODE = "CLOSED";
+    socket.on('exitRoom', () => {
+        const user = getUser(socket.id);
+        if (!user) return;
+        const room = getRoom(user.roomCODE);
+
+        if (user && room) {
+            if (room.gameStatus && room.P1 && room.P2) {
+                if (user.id == room.P1.id || user.id == room.P2.id) {
+                    room.gameStatus = false;
+                    io.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
                 }
-                socket.broadcast.to(UR.user.roomCODE).emit('updateRoomPage', UR.room);
             }
+            if (!room.status) {
+                room.CODE = "CLOSED";
+            }
+            socket.broadcast.to(user.roomCODE).emit('updateRoom', room);
         }
+        userLeavesRoom(socket.id);
     });
+
+    socket.on('disconnect', () => {
+        const user = getUser(socket.id);
+        if (!user) return;
+        const room = getRoom(user.roomCODE);
+
+        if (user && room) {
+            if (room.gameStatus && room.P1 && room.P2) {
+                if (user.id == room.P1.id || user.id == room.P2.id) {
+                    room.gameStatus = false;
+                    io.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
+                }
+            }
+            if (!room.status) {
+                room.CODE = "CLOSED";
+            }
+            socket.broadcast.to(user.roomCODE).emit('updateRoom', room);
+        }
+        userLeavesRoom(socket.id);
+    });
+
 });
 
 
@@ -171,20 +201,17 @@ function getRoom(CODE) {
     return ROOMSTATE.rooms.find((room) => room.CODE == CODE);
 }
 
-
 function userLeavesRoom(id) {
     const user = getUser(id);
     if (!user) return null;
     const room = getRoom(user.roomCODE);
     if (room) {
         room.users = room.users.filter(U => U.id != id);
-        if (room.P1.id == id) {
+        if (room.P1.id == id || room.P2 && room.P2.id == id) {
             room.users = [];
-            room.gameStatus = false;
             terminateRoom(room);
         }
     }
-    return { user, room };
 }
 
 function getUser(id) {

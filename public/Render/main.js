@@ -7,6 +7,7 @@ import { gameState, player_name } from "../app.js";
 import {
     piecesList, enpassantDetails, kingSquare
 } from "../Data/data.js";
+import { getname } from "./socket.js";
 
 function pieceRender(data) {
     data.forEach(row => {
@@ -175,8 +176,10 @@ function endGame(color) {
         document.querySelector("#result").style.display = 'flex';
         if (color[0] == 'D')
             document.querySelector("#winner").innerText = color;
-        else
-            document.querySelector("#winner").innerText = player_name[color] + " won the game";
+        else {
+            const name = getname(color);
+            document.querySelector("#winner").innerText = `${name ? name : player_name[color]} Won`;
+        }
     }, 500);
 }
 
