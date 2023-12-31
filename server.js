@@ -145,7 +145,7 @@ io.on('connection', socket => {
             if (room.gameStatus && room.P1 && room.P2) {
                 if (user.id == room.P1.id || user.id == room.P2.id) {
                     room.gameStatus = false;
-                    io.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
+                    socket.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
                 }
             }
             if (!room.status) {

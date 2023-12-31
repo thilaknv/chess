@@ -1,10 +1,10 @@
-import { myData, opposite } from "../Data/data.js";
+import { myData} from "../Data/data.js";
 import { manualEvent } from "../Events/global.js";
 import { start } from "../app.js";
 import { endGame } from "./main.js";
 
-// const socket = io('https://chezz-game-socketio-project.onrender.com');
-const socket = io('ws://localhost:3000');
+const socket = io('https://chezz-game-socketio-project.onrender.com');
+// const socket = io('ws://localhost:3000');
 // const socket = io();
 
 const gameForms = document.querySelector('.game-forms');
