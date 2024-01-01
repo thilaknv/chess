@@ -1,4 +1,4 @@
-import { initGame, myData } from "./Data/data.js";
+import { BOARD, initGame, myData } from "./Data/data.js";
 import { initGameRender } from "./Render/main.js"
 import { globalEvent } from "./Events/global.js";
 
@@ -16,7 +16,7 @@ var gameState;
 var fliped = false;
 
 function start(room, id) {
-    
+
     gameState = initGame();
     initGameRender(gameState);
     player_name[room.P1Color] = room.P1.name;
@@ -43,13 +43,30 @@ function start(room, id) {
 }
 
 function flip() {
+    const sqNum = document.querySelector('.squareNum');
+    const sqAlp = document.querySelector('.squareAlpha');
     if (fliped) {
         document.querySelector('.p-b-p').style.flexDirection = "column";
-        document.querySelector('#board').style.flexDirection = "column";
+        BOARD.style.flexDirection = "row";
+        BOARD.style.flexWrap = "wrap";
+
+        sqNum.style.flexDirection = 'column';
+        sqAlp.style.flexDirection = 'row';
+
     } else {
         document.querySelector('.p-b-p').style.flexDirection = "column-reverse";
-        document.querySelector('#board').style.flexDirection = "column-reverse";
+        BOARD.style.flexDirection = "row-reverse";
+        BOARD.style.flexWrap = "wrap-reverse";
+
+        sqNum.style.flexDirection = 'column-reverse';
+        sqAlp.style.flexDirection = 'row-reverse';
     }
+
+    sqNum.classList.toggle('firstBlack');
+    sqNum.classList.toggle('firstWhite');
+    sqAlp.classList.toggle('firstBlack');
+    sqAlp.classList.toggle('firstWhite');
+
     fliped = !fliped;
 }
 

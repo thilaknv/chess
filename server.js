@@ -200,7 +200,7 @@ function activateRoom(matchTime, P1Color) {
 
 function activateUser(id, name, room) {
     if (room.users.length > 9) return;
-    const color = playerColors.list[room.colors.pop()];
+    const color = playerColors.list[room.colors.shift()];
     const user = { id, name, roomCODE: room.CODE, color };
     room.users = [
         ...room.users.filter((R) => R.CODE != room.CODE), user

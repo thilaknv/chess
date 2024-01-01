@@ -25,7 +25,7 @@ function pieceRender(data) {
 
 function initGameRender(data) {
     data.forEach(row => {
-        const rowDiv = document.createElement("div");
+
         row.forEach(square => {
             let rank = square.id[1];
             let col = square.id[0];
@@ -35,7 +35,7 @@ function initGameRender(data) {
             newChild.setAttribute("id", square.id);
             newChild.className = square.color;
             newChild.appendChild(highSpan);
-            rowDiv.appendChild(newChild);
+            BOARD.appendChild(newChild);
 
             if (rank == 1) {
                 if (col == 'a' || col == 'h')
@@ -71,8 +71,6 @@ function initGameRender(data) {
                 piecesList['black'].push(square.piece);
             }
         });
-        rowDiv.classList.add("rowDiv");
-        BOARD.appendChild(rowDiv);
     });
     pieceRender(data);
     kingSquare.black = gameState[0][4].piece;

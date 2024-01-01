@@ -31,7 +31,6 @@ body {
     height: 100%;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: auto;
@@ -216,7 +215,9 @@ body {
     height: var(--board-length);
     width: var(--board-length);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* transition: 200ms; */
 }
 
 .player {
@@ -348,12 +349,12 @@ body {
 
 .msg-list-left {
     align-self: flex-start;
-    box-shadow: -1px 1px 2px 1px;
+    box-shadow: -1px 0px 0px 0px;
 }
 
 .msg-list-right {
     align-self: flex-end;
-    box-shadow: 1px 1px 2px 1px;
+    box-shadow: 1px 0px 0px 0px;
 }
 
 .msg-list-header {
@@ -377,8 +378,8 @@ body {
 }
 
 .msg-list-time {
+    font-size: 0.8em;
     color: var(--color1);
-    font-size: x-small;
     font-style: italic;
     /* width: 50px; */
 }
@@ -448,6 +449,55 @@ body {
     background-color: var(--black);
 }
 
+
+.squareNum {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    font-size: small;
+    height: var(--board-length);
+    width: var(--board-length);
+    pointer-events: none;
+    font-weight: bold;
+}
+
+.squareAlpha {
+    text-align: end;
+    position: absolute;
+    align-items: last baseline;
+    display: flex;
+    flex-direction: row;
+    font-size: small;
+    height: var(--board-length);
+    width: var(--board-length);
+    pointer-events: none;
+    font-weight: bold;
+}
+
+.firstBlack span:nth-of-type(2n-1),
+.firstWhite span:nth-of-type(2n) {
+    color: var(--black);
+    /* color: black; */
+}
+
+.firstBlack span:nth-of-type(2n),
+.firstWhite span:nth-of-type(2n-1) {
+    color: var(--white);
+    /* color: black; */
+}
+
+.squareNum span {
+    height: calc(var(--board-length) / 8);
+    padding: 1px;
+    z-index: 2;
+}
+
+.squareAlpha span {
+    width: calc(var(--board-length) / 8);
+    padding: 1px;
+    z-index: 2;
+}
+
 .selectedwhite {
     background-color: #f4f680;
 }
@@ -510,9 +560,19 @@ body {
 }
 
 
-@media(height < 500px) or (height < 500px) {
-    #movesBox, #chatBox {
-        font-size: x-small;
+/* .game-forms {
+    display: none;
+}
+
+.game-move-chat {
+    display: flex;
+} */
+
+
+@media(height < 500px) {
+    #movesBox,
+    #chatBox {
+        font-size: 12px;
     }
 }
 

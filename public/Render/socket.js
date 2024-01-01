@@ -136,7 +136,7 @@ function getname(color) {
 
 socket.on('roomPage', room => {
     MY.id = socket.id;
-    updateUserList(room);
+    updateUserList(room, socket.id);
     gameForms.style.display = 'none';
     roomPage.style.display = 'flex';
 });

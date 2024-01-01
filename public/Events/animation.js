@@ -12,6 +12,7 @@ function addAnimation(piece, srcId, dstId, unit) {
     const moveToObj = moveTo(srcId, dstId);
     if (fliped) {
         moveToObj.y = -moveToObj.y;
+        moveToObj.x = -moveToObj.x;
     }
     piece.style.transform = `translate(${unit * moveToObj.x}px, ${unit * moveToObj.y}px)`;
     piece.style.zIndex = '2';
