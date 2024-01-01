@@ -26,14 +26,23 @@ const io = new Server(expressServer, {
     }
 });
 
+
+// socket 
+
 const ROOMSTATE = {
     rooms: []
 }
+
+const playerColors = {
+    list: ['#ef476f', '#06d6a0', '#00b4d8', '#f77f00', '#fcbf49', '#9f86e0', '#2ec4b6', '#c98bb9', '#90e0ef', '#a09abc']
+}
+
 const alpha = [
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
     'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
     's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 ];
+
 const generater = {
     getCODE: () => {
         let CODE = '';
@@ -97,7 +106,6 @@ io.on('connection', socket => {
             const room = getRoom(p2.roomCODE);
             room.gameStatus = true;
             room.P2 = p2;
-            console.log(room);
             io.to(p2.roomCODE).emit('openGameChatBox', room);
         }
     });
@@ -125,7 +133,7 @@ io.on('connection', socket => {
             if (room.gameStatus && room.P1 && room.P2) {
                 if (user.id == room.P1.id || user.id == room.P2.id) {
                     room.gameStatus = false;
-                    io.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
+                    io.to(room.CODE).emit('endGame', { exitedUserId: socket.id, room });
                 }
             }
             if (!room.status) {
@@ -145,7 +153,7 @@ io.on('connection', socket => {
             if (room.gameStatus && room.P1 && room.P2) {
                 if (user.id == room.P1.id || user.id == room.P2.id) {
                     room.gameStatus = false;
-                    socket.to(room.CODE).emit('endGame', { exitedUserId: socket.id });
+                    socket.to(room.CODE).emit('endGame', { exitedUserId: socket.id, room });
                 }
             }
             if (!room.status) {
@@ -183,14 +191,17 @@ function activateRoom(matchTime, P1Color) {
         P2: null,
         P1Color: colors.color1,
         P2Color: colors.color2,
-        users: []
+        users: [],
+        colors: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
     ROOMSTATE.rooms.push(room);
     return room;
 }
 
 function activateUser(id, name, room) {
-    const user = { id, name, roomCODE: room.CODE };
+    if (room.users.length > 9) return;
+    const color = playerColors.list[room.colors.pop()];
+    const user = { id, name, roomCODE: room.CODE, color };
     room.users = [
         ...room.users.filter((R) => R.CODE != room.CODE), user
     ]
@@ -206,6 +217,7 @@ function userLeavesRoom(id) {
     if (!user) return null;
     const room = getRoom(user.roomCODE);
     if (room) {
+        room.colors.push(user.color);
         room.users = room.users.filter(U => U.id != id);
         if (room.P1.id == id || room.P2 && room.P2.id == id) {
             room.users = [];

@@ -257,6 +257,7 @@ body {
     width: 100%;
     color: var(--color2);
     z-index: 5;
+    font-size: small;
     border-radius: 5px;
     flex-direction: column;
     transition: 0.5s;
@@ -269,11 +270,11 @@ body {
 }
 
 #movesBox {
-    height: 45%;
+    height: 40%;
 }
 
 #chatBox {
-    height: 55%;
+    height: 60%;
 }
 
 .MC-nav-buttons {
@@ -311,12 +312,14 @@ body {
 #openChatBox_nav:active {
     transform: scale(95%);
 }
+
 .msg-list {
     width: 100%;
     display: flex;
     flex-flow: column;
     flex-grow: 1;
     list-style-type: none;
+    font-size: 1;
     padding: 10px;
     gap: 5px;
     overflow-y: auto;
@@ -333,6 +336,7 @@ body {
     background-color: var(--background-color2);
     width: fit-content;
     max-width: 80%;
+    font-size: 1em;
     display: flex;
     flex-direction: column;
     align-self: flex-end;
@@ -344,17 +348,17 @@ body {
 
 .msg-list-left {
     align-self: flex-start;
-    box-shadow: -1px 1px 2px 1px var(--chat-box-color);
+    box-shadow: -1px 1px 2px 1px;
 }
 
 .msg-list-right {
     align-self: flex-end;
-    box-shadow: 1px 1px 2px 1px var(--chat-box-color);
+    box-shadow: 1px 1px 2px 1px;
 }
 
 .msg-list-header {
-    color: var(--chat-box-color);
-    font-size: small;
+    color: inherit;
+    font-size: 1em;
     font-weight: bold;
 }
 
@@ -366,13 +370,14 @@ body {
 
 .msg-list-message {
     color: var(--message-color);
-    font-size: small;
+    font-size: 0.9em;
     display: flex;
     justify-content: space-between;
     gap: 20px;
 }
 
 .msg-list-time {
+    color: var(--color1);
     font-size: x-small;
     font-style: italic;
     /* width: 50px; */
@@ -380,8 +385,10 @@ body {
 
 .msg-form {
     display: flex;
+    align-items: center;
     background: none;
     align-self: flex-end;
+    font-size: 1em;
     width: 100%;
     padding: 10px;
 }
@@ -390,13 +397,14 @@ body {
     color: var(--message-color);
     background-color: transparent;
     border: none;
+    font-size: 1.1em;
     outline: none;
     flex-grow: 1;
     font-weight: 500;
 }
 
 .send {
-    width: 24px;
+    width: 20px;
 }
 
 #msg-button {
@@ -501,6 +509,12 @@ body {
     background-color: #bcbed550;
 }
 
+
+@media(height < 500px) or (height < 500px) {
+    #movesBox, #chatBox {
+        font-size: x-small;
+    }
+}
 
 @media(width < 135vh) {
     :root {
