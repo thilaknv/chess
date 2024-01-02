@@ -144,6 +144,14 @@ io.on('connection', socket => {
         userLeavesRoom(socket.id);
     });
 
+    socket.on('endGameStatus', () => {
+        const user = getUser(socket.id);
+        if (user) {
+            const room = getRoom(user.roomCODE);
+            room && (room.gameStatus = false);
+        }
+    });
+
     socket.on('disconnect', () => {
         const user = getUser(socket.id);
         if (!user) return;

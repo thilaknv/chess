@@ -442,13 +442,14 @@ body {
 }
 
 .white {
+    color: var(--black);
     background-color: var(--white);
 }
 
 .black {
+    color: var(--white);
     background-color: var(--black);
 }
-
 
 .squareNum {
     position: absolute;
@@ -506,6 +507,15 @@ body {
     background-color: #bbcc44;
 }
 
+.highSquare:hover {
+    cursor: pointer;
+    /* border: 1px solid grey; */
+}
+
+.highSquare:hover .highSpan {
+    background-color: #0000002f;
+}
+
 .highSpan {
     position: absolute;
     z-index: 3;
@@ -540,6 +550,24 @@ body {
     gap: 40px;
 }
 
+.resButtons {
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+}
+
+.resHide,
+.resRestart {
+    padding: 10px;
+    border-radius: 5px;
+    transition: 200ms;
+}
+
+.resHide:active,
+.resRestart:active {
+    scale: 0.95;
+}
+
 ::-webkit-scrollbar {
     width: 10px;
     cursor: auto;
@@ -562,14 +590,16 @@ body {
 
 /* .game-forms {
     display: none;
-}
+} */
 
+/*
 .game-move-chat {
     display: flex;
 } */
 
 
 @media(height < 500px) {
+
     #movesBox,
     #chatBox {
         font-size: 12px;

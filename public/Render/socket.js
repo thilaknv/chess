@@ -184,6 +184,11 @@ socket.on('endGame', ({ exitedUserId }) => {
     return 'Draw';
 });
 
+function endGameState() {
+    if (MY.id == MY.room.P1.id)
+        socket.emit('endGameStatus');
+}
+
 export {
-    sendMove, gameMoveChat, getname
+    sendMove, endGameState, gameMoveChat, getname
 }

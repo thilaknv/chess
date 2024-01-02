@@ -7,7 +7,7 @@ import { gameState, player_name } from "../app.js";
 import {
     piecesList, enpassantDetails, kingSquare
 } from "../Data/data.js";
-import { getname } from "./socket.js";
+import { endGameState, getname } from "./socket.js";
 
 function pieceRender(data) {
     data.forEach(row => {
@@ -140,14 +140,14 @@ function remSelectedSqRender({ id, color }) {
 function highLightSqRender(sqrId) {
     const highSpan = document.querySelector("#" + sqrId + " span");
     const highSquare = document.getElementById(sqrId);
-    highSquare.style.cursor = "pointer";
+    highSquare.classList.toggle('highSquare', true);
     highSpan.style.display = "block";
 }
 
 function remHighLightSqRender(sqrId) {
     const highSpan = document.querySelector("#" + sqrId + " span");
     const highSquare = document.getElementById(sqrId);
-    highSquare.style.cursor = "auto";
+    highSquare.classList.toggle('highSquare', false);
     highSpan.style.display = "none";
 }
 
@@ -171,14 +171,21 @@ function RemCapturableSqRender(sqrId) {
 function endGame(color) {
     setTimeout(() => {
         BOARD.style.filter = 'blur(1.5px)';
-        document.querySelector("#result").style.display = 'flex';
         if (color[0] == 'D')
             document.querySelector("#winner").innerText = color;
         else {
             const name = getname(color);
             document.querySelector("#winner").innerText = `${name ? name : player_name[color]} Won`;
         }
-    }, 500);
+        document.querySelector("#result").style.display = 'flex';
+    }, 100);
+
+    endGameState();
+    
+    document.querySelector('.resHide').addEventListener('click', () => {
+        BOARD.style.filter = 'none';
+        document.querySelector("#result").style.display = 'none';
+    });
 }
 
 export {
