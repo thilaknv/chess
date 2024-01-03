@@ -7,6 +7,12 @@ const ADMIN = 'Admin';
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+    res.set('Connection', 'keep-alive');
+    next();
+});
+
 app.use(express.static("public"));
 
 app.get('/*', (req, res) => {
@@ -14,17 +20,21 @@ app.get('/*', (req, res) => {
 });
 
 
-const expressServer = app.listen(PORT, (req, res) => {
-    console.log(`Server running at port ${PORT}`);
-});
+const expressServer = app.listen(PORT);
+// expressServer.keepAliveTimeout(30 * 60 * 1000);
 
 const io = new Server(expressServer, {
-    cors: {
-        origin: process.env.NODE_ENV === 'production' ? false :
-            ['http://localhost:5500', 'http://127.0.0.1:5500']
-    }
+    // Configure Socket.IO options here
+    pingInterval: 20000, // Interval for the server to send ping packets to clients (in ms)
+    pingTimeout: 5000, // Timeout for clients to respond to the ping packets (in ms)
 });
 
+// const io = new Server(expressServer, {
+//     cors: {
+//         origin: process.env.NODE_ENV === 'production' ? false :
+//             ['http://localhost:5500', 'http://127.0.0.1:5500']
+//     }
+// });
 
 // socket 
 
@@ -64,6 +74,9 @@ const generater = {
 
 io.on('connection', socket => {
     // console.log("connedted");
+    socket.alive = true;
+    console.log(socket.id + ' connected at io');
+    // socket.setTimeout(2 * 60 * 1000);
 
     socket.on('createRoom', ({ host, matchTime, myColor }) => {
 
@@ -79,6 +92,9 @@ io.on('connection', socket => {
 
         // to host
         socket.emit('roomPage', room);
+
+        // start ping
+        socket.emit('ping');
     });
 
     socket.on('joinRoom', ({ name, joinRoomID }) => {
@@ -97,6 +113,22 @@ io.on('connection', socket => {
         // to user
         socket.emit('roomPage', room);
         socket.broadcast.to(room.CODE).emit('updateRoom', room);
+
+        // start ping
+        socket.emit('ping');
+    });
+
+    socket.on('pong', () => {
+        socket.alive = true;
+        setTimeout(() => {
+            socket.alive = false;
+            socket.emit('ping');
+            setTimeout(() => {
+                if (!socket.alive) {
+                    // do something for disconnection
+                }
+            }, 3000);
+        }, 5000);
     });
 
     socket.on('startGameChat', p_2 => {
@@ -135,12 +167,15 @@ io.on('connection', socket => {
                     io.to(room.CODE).emit('endGame', { exitedUserId: socket.id, room });
                 }
             }
+
+            userLeavesRoom(socket.id);
+
             if (!room.status) {
                 room.CODE = "CLOSED";
             }
             socket.broadcast.to(user.roomCODE).emit('updateRoom', room);
-        }
-        userLeavesRoom(socket.id);
+        } else
+            userLeavesRoom(socket.id);
     });
 
     socket.on('endGameStatus', () => {
@@ -163,16 +198,19 @@ io.on('connection', socket => {
                     socket.to(room.CODE).emit('endGame', { exitedUserId: socket.id, room });
                 }
             }
+
+            userLeavesRoom(socket.id);
+
             if (!room.status) {
                 room.CODE = "CLOSED";
             }
+            console.log(socket.id + " disconnected");
             socket.broadcast.to(user.roomCODE).emit('updateRoom', room);
-        }
-        userLeavesRoom(socket.id);
+        } else
+            userLeavesRoom(socket.id);
     });
 
 });
-
 
 
 // important methods

@@ -184,6 +184,8 @@ socket.on('endGame', ({ exitedUserId }) => {
     return 'Draw';
 });
 
+socket.on('ping', () => socket.emit('pong'));
+
 function endGameState() {
     if (MY.id == MY.room.P1.id)
         socket.emit('endGameStatus');
