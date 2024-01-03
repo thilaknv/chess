@@ -36,7 +36,8 @@ const io = new Server(expressServer, {
 //     }
 // });
 
-// socket 
+
+// --- SOCKET ---
 
 const ROOMSTATE = {
     rooms: []
@@ -75,7 +76,6 @@ const generater = {
 io.on('connection', socket => {
     // console.log("connedted");
     socket.alive = true;
-    console.log(socket.id + ' connected at io');
     // socket.setTimeout(2 * 60 * 1000);
 
     socket.on('createRoom', ({ host, matchTime, myColor }) => {
@@ -204,14 +204,12 @@ io.on('connection', socket => {
             if (!room.status) {
                 room.CODE = "CLOSED";
             }
-            console.log(socket.id + " disconnected");
             socket.broadcast.to(user.roomCODE).emit('updateRoom', room);
         } else
             userLeavesRoom(socket.id);
     });
 
 });
-
 
 // important methods
 
