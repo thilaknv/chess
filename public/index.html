@@ -109,9 +109,13 @@
             </div>
         </div>
     </div>
-
 </body>
 
+<script>
+    if (window.location.href.includes('vercel.app')) {
+        window.location.replace('https://chezz-game-socketio-project.onrender.com');
+    }
+</script>
 <script type="module" src="app.js"></script>
 <script type="module" src="./Render/socket.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
