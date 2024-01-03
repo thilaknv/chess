@@ -10,9 +10,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res, next) => {
     const fullUrl = req.protocol + '://' + req.get('host');
-    console.log(fullUrl);
-    if (fullUrl.includes('https://play-chezz-gamma.vercel.app') ||
-        fullUrl.includes('http://play-chezz-gamma.vercel.app')) {
+    // console.log(fullUrl);
+    if (fullUrl.includes('vercel.app')) {
         res.redirect('https://chezz-game-socketio-project.onrender.com');
     }
     else next();
