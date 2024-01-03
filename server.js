@@ -5,15 +5,25 @@ import { Server } from "socket.io";
 const PORT = process.env.PORT || 3000;
 const ADMIN = 'Admin';
 const app = express();
-
-
-
 app.use(express.urlencoded({ extended: true }));
+
+
+app.get("/", (req, res, next) => {
+    const fullUrl = req.protocol + '://' + req.get('host');
+    console.log(fullUrl);
+    if (fullUrl.includes('https://play-chezz-gamma.vercel.app') ||
+        fullUrl.includes('http://play-chezz-gamma.vercel.app')) {
+        res.redirect('https://chezz-game-socketio-project.onrender.com');
+    }
+    else next();
+});
+
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-    res.render("index.html");
+app.get('/*', (req, res) => {
+    res.redirect('https://chezz-game-socketio-project.onrender.com');
 });
+
 
 const expressServer = app.listen(PORT, (req, res) => {
     console.log(`Server running at port ${PORT}`);
