@@ -11,11 +11,11 @@
 
     --scroll-thumb-color: #bcbed550;
 
-    --background-color1: rgb(25, 25, 25);
+    --background-color1: #191919;
     /* message */
-    --background-color2: rgb(50, 50, 50);
+    --background-color2: #323232;
     /**/
-    --background-color3: rgb(63, 63, 63);
+    --background-color3: #3f3f3f;
 }
 
 * {
@@ -23,6 +23,8 @@
     box-sizing: border-box;
     margin: 0px;
     font-family: sans-serif;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
