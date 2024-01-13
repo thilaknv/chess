@@ -6,7 +6,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
 const PORT = process.env.PORT || 3000;
-const ADMIN = 'Admin';
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -16,11 +15,12 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.static('public'), (res, req, next) => next());
+
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html");
 });
 
-app.use(express.static('public'));
 
 app.get('/*', (req, res) => {
     res.send('<h1>404: Page not Found</h1>');
