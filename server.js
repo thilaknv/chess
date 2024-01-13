@@ -5,17 +5,15 @@ import { Server } from "socket.io";
 const PORT = process.env.PORT || 3000;
 const ADMIN = 'Admin';
 const app = express();
-
-app.use(express.urlencoded({ extended: true }));
+app.get('/', (req, res) => {
+    res.send('Hi');
+})
 
 app.use((req, res, next) => {
     res.set('Connection', 'keep-alive');
     next();
 });
 
-app.get('/', (req, res)=>{
-    res.send('Hi');
-})
 
 
 app.get('/*', (req, res) => {
