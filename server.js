@@ -15,6 +15,10 @@ app.use((req, res, next) => {
 
 app.use(express.static("public"));
 
+app.get('/', (req, res)=>{
+    res.send('Hi');
+})
+
 app.get('/*', (req, res) => {
     res.send('<h1>404: Page not Found</h1>');
 });
