@@ -1,23 +1,26 @@
 import express from "express";
 import { Server } from "socket.io";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
 const PORT = process.env.PORT || 3000;
 const ADMIN = 'Admin';
 const app = express();
 
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-    res.send('Hi');
-})
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
     res.set('Connection', 'keep-alive');
     next();
 });
 
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/public/index.html");
+});
 
+app.use(express.static('public'));
 
 app.get('/*', (req, res) => {
     res.send('<h1>404: Page not Found</h1>');
