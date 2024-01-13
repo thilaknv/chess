@@ -3,8 +3,8 @@ import { manualEvent } from "../Events/global.js";
 import { start } from "../app.js";
 import { endGame } from "./main.js";
 
-const socket = io('https://chezz-game-socketio-project.onrender.com');
-// const socket = io('kingzgambit.vercel.app');
+// const socket = io('https://chezz-game-socketio-project.onrender.com');
+const socket = io('kingzgambit.vercel.app');
 
 // const socket = io('ws://localhost:3000');
 
