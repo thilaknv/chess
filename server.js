@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 app.use(express.static("public"));
 
 app.get('/*', (req, res) => {
-    res.redirect('https://chezz-game-socketio-project.onrender.com');
+    res.send('<h1>404: Page not Found</h1>');
 });
 
 
@@ -25,8 +25,8 @@ const expressServer = app.listen(PORT);
 
 const io = new Server(expressServer, {
     // Configure Socket.IO options here
-    pingInterval: 20000, // Interval for the server to send ping packets to clients (in ms)
-    pingTimeout: 5000, // Timeout for clients to respond to the ping packets (in ms)
+    pingInterval: 2000, // Interval for the server to send ping packets to clients (in ms)
+    pingTimeout: 1500, // Timeout for clients to respond to the ping packets (in ms)
 });
 
 // const io = new Server(expressServer, {
@@ -127,8 +127,8 @@ io.on('connection', socket => {
                 if (!socket.alive) {
                     // do something for disconnection
                 }
-            }, 3000);
-        }, 5000);
+            }, 1500);
+        }, 2000);
     });
 
     socket.on('startGameChat', p_2 => {
