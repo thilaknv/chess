@@ -1,108 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chess</title>
-    <link rel="icon" type="image/x-icon" href="./images/pieces/white/king.png" />
-    <link rel="stylesheet" href="./styles.css">
-</head>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="./images/pieces/white/king.png"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
 
-<body>
+  <body>
     <div id="result">
-        <h2><span id="winner"></span></h2>
-        <div class="resButtons">
-            <button class="resHide">Hide</button>
-            <button class="resRestart" onclick="location.reload()">Restart</button>
-        </div>
+      <h2><span id="winner"></span></h2>
+      <div class="resButtons">
+        <button class="resHide">Hide</button>
+        <button class="resRestart" onclick="location.reload()">Restart</button>
+      </div>
     </div>
 
+    <div class="playing-chess-image">
+      <img src="./images/playing-chess.png" alt="" />
+    </div>
     <div class="game-forms">
-        <form class="create-form">
-            <input class="inputs" type="text" name="username1" id="username1" placeholder="username" required
-                minlength="5" maxlength="20" autocomplete="off">
-            <select class="selects" name="time" id="game_time">
-                <option value="5">5 min</option>
-                <option value="10">10 min</option>
-                <option value="15">15 min</option>
-                <option value="20">20 min</option>
-                <option value="30">30 min</option>
-            </select>
-            <select class="selects" name="color" id="my_color">
-                <option value="Random">Random Color</option>
-                <option value="White">White</option>
-                <option value="Black">Black</option>
-            </select>
-            <button id="create">Create Room</button>
-        </form>
-        <hr>
-        <form class="join-form">
-            <input class="inputs" type="text" name="username2" id="username2" placeholder="username" required
-                minlength="5" maxlength="20" autocomplete="off">
-            <input class="inputs" type="text" name="join_room" id="join_room" placeholder="Room ID" required
-                minlength="6" maxlength="6" autocomplete="off">
-            <button id="join">Join Room</button>
-        </form>
+      <form class="create-form">
+        <input
+          class="inputs"
+          type="text"
+          name="username1"
+          id="username1"
+          placeholder="username"
+          required
+          minlength="5"
+          maxlength="20"
+          autocomplete="off"
+        />
+        <select class="selects" name="time" id="game_time">
+          <option value="5">5 min</option>
+          <option value="10">10 min</option>
+          <option value="15">15 min</option>
+          <option value="20">20 min</option>
+          <option value="30">30 min</option>
+        </select>
+        <select class="selects" name="color" id="my_color">
+          <option value="Random">Random Color</option>
+          <option value="White">White</option>
+          <option value="Black">Black</option>
+        </select>
+        <button id="create">Create Room</button>
+      </form>
+      <hr />
+      <form class="join-form">
+        <input
+          class="inputs"
+          type="text"
+          name="username2"
+          id="username2"
+          placeholder="username"
+          required
+          minlength="5"
+          maxlength="20"
+          autocomplete="off"
+        />
+        <input
+          class="inputs"
+          type="text"
+          name="join_room"
+          id="join_room"
+          placeholder="Room ID"
+          required
+          minlength="6"
+          maxlength="6"
+          autocomplete="off"
+        />
+        <button id="join">Join Room</button>
+      </form>
     </div>
     <form class="room-page">
-        <div class="rp-header">
-            <h3 class="rp-header-h3">Room</h3>
-            <p>ID: <span id="shareCode">abcgdf</span></p>
-        </div>
+      <div class="rp-header">
+        <h3 class="rp-header-h3">Room</h3>
+        <p>
+          ID: <span id="shareCode">INVALID</span>
+          <img id="copy-code" class="copy-code" src="./images/copy.png" />
+        </p>
+      </div>
 
-        <div class="usersList1"></div>
-        <div class="rp-buttons">
-            <button id="room_game_exit">Exit</button>
-            <button id="room_game_start">Start</button>
-        </div>
+      <div class="usersList1"></div>
+      <div class="rp-buttons">
+        <button id="room_game_exit">Exit</button>
+        <button id="room_game_start">Start</button>
+      </div>
     </form>
 
     <div class="game-move-chat">
-        <div class="p-b-p">
-            <div class="player rp-list-label">
-                <img class="player-img" src="./images/pieces/black/pawn.png" alt="">
-                <h5 class="player-h4" id="player_B">Player Black</h5>
-            </div>
-            <div id="board">
-                <div class="squareNum firstBlack">
-                    <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
-                </div>
-                <div class="squareAlpha firstWhite">
-                    <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
-                </div>
-            </div>
-            <div class="player rp-list-label">
-                <img class="player-img" src="./images/pieces/black/pawn.png" alt="">
-                <h5 class="player-h4" id="player_W">Player White</h5>
-            </div>
+      <div class="p-b-p">
+        <div class="player rp-list-label">
+          <h5 class="player-h4" id="player_B">Player Black</h5>
         </div>
-        <div class="move-chat">
-            <div id="movesBox" class="hide_nav2"></div>
-            <div id="chatBox" class="hide_nav1">
-                <section class="msg-list">
-                    <div class="nothing"></div>
-                </section>
-                <form class="msg-form">
-                    <input type="text" id="msg-input" placeholder="Type a message" autocomplete="off" required>
-                    <button id="msg-button"><img src="./images/send/send.png" class="send"></button>
-                </form>
-            </div>
-            <div class="MC-nav-buttons">
-                <button id="flip_nav">Flip</button>
-                <button id="openChatBox_nav">Chat</button>
-                <button id="openMovesBox_nav">Moves</button>
-            </div>
+        <div id="board">
+          <div class="squareNum firstBlack">
+            <span>8</span><span>7</span><span>6</span><span>5</span
+            ><span>4</span><span>3</span><span>2</span><span>1</span>
+          </div>
+          <div class="squareAlpha firstWhite">
+            <span>a</span><span>b</span><span>c</span><span>d</span
+            ><span>e</span><span>f</span><span>g</span><span>h</span>
+          </div>
         </div>
+        <div class="player rp-list-label">
+          <h5 class="player-h4" id="player_W">Player White</h5>
+        </div>
+      </div>
+      <div class="move-chat">
+        <div id="movesBox" class="hide_nav2"></div>
+        <div id="chatBox" class="hide_nav1">
+          <section class="msg-list">
+            <div class="nothing"></div>
+          </section>
+          <form class="msg-form">
+            <input
+              type="text"
+              id="msg-input"
+              placeholder="Type a message"
+              autocomplete="off"
+              required
+            />
+            <button id="msg-button">
+              <img src="./images/send/send.png" class="send" />
+            </button>
+          </form>
+        </div>
+        <div class="MC-nav-buttons">
+          <button id="flip_nav">Flip</button>
+          <button id="openChatBox_nav">Chat</button>
+          <button id="openMovesBox_nav">Moves</button>
+        </div>
+      </div>
     </div>
-</body>
-<script type="module" src="app.js"></script>
-<script type="module" src="./Render/socket.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
+  </body>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="./Render/socket.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
     integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/socket.io/socket.io.js"></script>
-<!-- 
--->
-
-</html>
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- 
+--></html>
